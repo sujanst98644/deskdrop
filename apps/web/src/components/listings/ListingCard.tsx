@@ -34,7 +34,7 @@ export function ListingCard({
   return (
     <Link
       href={`/listings/${id}`}
-      className="group block overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-md"
+      className="group block overflow-hidden border border-neutral-300 bg-card shadow-sm transition-shadow hover:shadow-lg"
     >
       <div className="relative aspect-square bg-muted">
         {image ? (
@@ -45,7 +45,7 @@ export function ListingCard({
           </div>
         )}
         <span
-          className={`absolute left-2 top-2 rounded px-2 py-1 text-xs font-semibold text-white ${conditionColor[condition]}`}
+          className={`absolute left-2 top-0 px-2 pt-2 py-1 text-xs font-semibold text-white ${conditionColor[condition]}`}
         >
           {conditionLabel[condition]}
         </span>
@@ -55,8 +55,8 @@ export function ListingCard({
         <h3 className="line-clamp-2 text-sm font-medium">{title}</h3>
         <p className="mt-2 text-lg font-bold">{formatRs(pricePaisa)}</p>
         <p className="mt-1 text-xs text-muted-foreground">by {sellerName}</p>
-        <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border py-2 text-sm font-medium hover:bg-accent">
-          Request to Buy
+        <button className="mt-3 flex w-full items-center justify-center gap-2 border border-black py-2 text-sm font-medium hover:bg-neutral-50">
+          Add to cart
         </button>
       </div>
     </Link>

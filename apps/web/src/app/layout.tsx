@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";
 import { Header } from "@/components/layout/Header";
+import { prisma } from "@deskdrop/db";
 import { Footer } from "@/components/layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -13,17 +14,19 @@ export const metadata: Metadata = {
   description: "Buy and sell items with fellow students.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
           <div className="flex min-h-screen flex-col">
-            <Header />
+            <Header categories={categories}/>
             <main className="flex-1">{children}</main>
             <Footer />
           </div>

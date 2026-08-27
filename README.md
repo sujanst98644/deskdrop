@@ -1,115 +1,114 @@
 # Deskdrop — Student Marketplace (Monorepo)
 
-7-day MVP: sign up → list an item → browse/search → request to buy → seller accepts/completes → item sold.
+**Stack:** Next.js 15, TypeScript, Tailwind CSS, shadcn/ui, Prisma + PostgreSQL, NextAuth.js (Credentials), Zod.  
+**Tooling:** Bun + Turborepo monorepo.
 
-**Stack:** Next.js 15, TypeScript, Tailwind CSS, shadcn/ui, Prisma + PostgreSQL, NextAuth.js (Credentials), Zod.
-**Tooling:** pnpm workspaces + Turborepo monorepo.
+---
 
 ## 📁 Structure
 
 ```
 deskdrop/
 ├── apps/
-│   └── web/                      ← the Next.js app
+│   └── web/                         ← Next.js app
 │       └── src/
 │           ├── app/
 │           │   ├── (auth)/sign-in, sign-up
-│           │   ├── (marketplace)/browse    ← stub, built out Day 3
-│           │   ├── api/auth/[...nextauth]  ← NextAuth handler
-│           │   └── api/register            ← credentials sign-up endpoint
+│           │   ├── (marketplace)/browse   ← stub (built Day 3)
+│           │   ├── api/auth/[...nextauth] ← NextAuth handler
+│           │   └── api/register           ← credentials sign-up
 │           ├── components/layout/ (Header, Footer), providers.tsx
 │           ├── lib/auth.ts, lib/utils/
 │           ├── types/next-auth.d.ts
 │           └── middleware.ts
 ├── packages/
-│   ├── db/                       ← @deskdrop/db — Prisma schema + client
+│   ├── db/                          ← @deskdrop/db — Prisma schema + client
 │   │   └── prisma/schema.prisma, seed.ts
-│   └── validators/                ← @deskdrop/validators — shared Zod schemas
-└── turbo.json, pnpm-workspace.yaml
+│   └── validators/                  ← @deskdrop/validators — shared Zod schemas
+├── .env                             ← root environment (copied into packages/db for Prisma)
+├── .env.example
+├── bun.lock
+├── package.json                     ← defines workspaces and scripts
+├── turbo.json
+└── README.md
 ```
 
-Both apps and future services (e.g. an admin tool) can import `@deskdrop/db` and `@deskdrop/validators` — one schema, one set of validation rules, shared everywhere.
+Both apps and future services can import `@deskdrop/db` and `@deskdrop/validators` — one schema, one set of validation rules, shared everywhere.
+
+---
 
 ## 🚀 Get running (~10 min)
 
-1. **Install pnpm** if you don't have it: `npm install -g pnpm`
+1. **Install Bun** if you don't have it:
 
-2. **Install dependencies** (run from the repo root — pnpm links the workspace packages automatically)
    ```bash
-   pnpm install
+   curl -fsSL https://bun.sh/install | bash
    ```
 
-3. **Create a free Neon Postgres DB** → https://neon.tech (1 min, no card needed). Copy the connection string.
+2. **Install dependencies** (from repo root – Bun automatically links workspace packages):
+
+   ```bash
+   bun install
+   ```
+
+3. **Create a free Neon Postgres DB** → [neon.tech](https://neon.tech) (1 min, no card). Copy the connection string.
 
 4. **Set up environment variables**
+
    ```bash
    cp .env.example .env
    ```
+
    Fill in:
    - `DATABASE_URL` → your Neon connection string
    - `NEXTAUTH_SECRET` → run `openssl rand -base64 32` and paste the output
+   - `NEXTAUTH_URL` → `http://localhost:3000` (or your production URL)
 
-   Prisma and Next.js both read from this root `.env` — no need to duplicate it inside `apps/web`.
+   _Optional:_ Add ImageKit keys for later (see Day 2).
 
-5. **Generate the Prisma client and push the schema**
+5. **Make Prisma see the environment**
+   Because Prisma runs inside `packages/db`, it won't see the root `.env` automatically.  
+   Copy it into the package:
+
    ```bash
-   pnpm db:generate
-   pnpm db:push
+   cp .env packages/db/.env
    ```
 
-6. **Seed demo data**
-   ```bash
-   pnpm seed
-   ```
-   Demo login after seeding: `asha@test.com` / `password123`
+6. **Generate Prisma client and push the schema**
 
-7. **Run the dev server** (Turborepo runs all apps; right now that's just `web`)
    ```bash
-   pnpm dev
+   bun run db:generate
+   bun run db:push
    ```
-   Open http://localhost:3000 — it should redirect to `/browse` and show 3 seeded listings, confirming Prisma is connected end-to-end.
 
-8. **Install shadcn/ui components** (run inside `apps/web`):
+7. **Seed demo data**
+
+   ```bash
+   bun run seed
+   ```
+
+   Seeded admin login: `admin@test.com` / `admin123` (or check `seed.ts` for the actual credentials).
+
+8. **Run the dev server**
+
+   ```bash
+   bun run dev
+   ```
+
+   Open http://localhost:3000 – it should redirect to `/browse` and show seeded listings, confirming Prisma is connected end‑to‑end.
+
+9. **Install shadcn/ui components** (run inside `apps/web`):
    ```bash
    cd apps/web
-   pnpm dlx shadcn@latest init
-   pnpm dlx shadcn@latest add button card input form select sheet dialog badge skeleton tabs carousel
+   bunx shadcn@latest init
+   bunx shadcn@latest add button card input form select sheet dialog badge skeleton tabs carousel
+   cd ../..
    ```
-   If it asks to overwrite `globals.css` / `tailwind.config.ts`, say **no** — the ones in this repo are already wired with the Deskdrop theme tokens.
+   If it asks to overwrite `globals.css` / `tailwind.config.ts`, say **no** — the existing ones are already wired with the Deskdrop theme.
 
-9. **Push to GitHub + import into Vercel.** In Vercel's project settings, set the **Root Directory** to `apps/web` (monorepo apps need this) and add `DATABASE_URL` + `NEXTAUTH_SECRET` as environment variables. Vercel auto-detects Turborepo and will build `packages/db` and `packages/validators` first.
-
-## ✅ Day 1 status — what's already built
-
-| Task | Status |
-|---|---|
-| pnpm + Turborepo monorepo scaffold | ✅ done |
-| `packages/db` — Prisma schema (`User`, `Category`, `Listing`, `Order`) + client singleton | ✅ done |
-| `packages/validators` — shared Zod schemas (sign up/in, listing, order) | ✅ done |
-| NextAuth.js — Credentials provider, Prisma-backed, JWT sessions | ✅ done |
-| `/api/register` — sign-up endpoint (hashes password with bcrypt) | ✅ done |
-| Middleware protecting `/dashboard`, `/sell` | ✅ done |
-| Sign-in / sign-up pages, wired to NextAuth | ✅ done |
-| Header (session-aware) / Footer / root layout with dark mode | ✅ done |
-| Seed script — 4 categories, 3 users, 3 sample listings | ✅ done |
-| `/browse` — live Prisma query rendering seeded listings | ✅ stub — real filters/search built Day 3 |
-
-## 🔜 Still to do today (Day 1 exit check)
-
-- [ ] `pnpm install`, `pnpm db:generate`, `pnpm db:push`, `pnpm seed` all succeed against a real Neon DB
-- [ ] `pnpm dev` shows seeded listings at `/browse`
-- [ ] Sign up a new test account at `/sign-up`, confirm the header shows your name after refresh, sign out works
-- [ ] Deploy to a Vercel preview with Root Directory = `apps/web` and both env vars set
-- [ ] shadcn/ui installed in `apps/web` with the Day 2 form components available
-
-Once all boxes are checked, move to **Day 2** (image upload + listing creation) — see the full architecture doc for that spec.
-
-## ⚠️ Scope reminder
-
-Do NOT add: chat/real-time, digital products, payment gateways, favorites, admin UI, email verification, OAuth providers. This is intentional — stay on scope, ship Friday.
-
-## Notes on this stack vs. a single-app setup
+## Notes on This Stack vs. a Single‑App Setup
 
 - **Why Prisma over raw SQL/Drizzle here:** `prisma db push` + `prisma studio` give the team a GUI to inspect data without touching SQL, which matters when 4 people are moving fast.
-- **Why NextAuth Credentials instead of rolling your own:** session cookies, JWT signing, and CSRF protection are handled for you. The trade-off is the `authorize()` callback pattern shown in `lib/auth.ts` — study that file, it's where all the login logic lives.
-- **Why a monorepo for a 1-week project:** mainly so `@deskdrop/validators` is the *single* source of truth for what a valid listing/order looks like — the same Zod schema validates the form on the client and the server action, so you can't drift out of sync under time pressure.
+- **Why NextAuth Credentials instead of rolling your own:** session cookies, JWT signing, and CSRF protection are handled for you. The trade‑off is the `authorize()` callback pattern shown in `lib/auth.ts` — study that file, it's where all the login logic lives.
+- **Why a monorepo for a 1‑week project:** mainly so `@deskdrop/validators` is the _single_ source of truth for what a valid listing/order looks like — the same Zod schema validates the form on the client and the server action, so you can't drift out of sync under time pressure.
+- **Why `.env` is copied into `packages/db`:** Prisma runs inside the workspace and doesn't see the root `.env` by default. We copy it during setup; you can delete the copy after seeding, or keep it — it's harmless and already in `.gitignore`.
