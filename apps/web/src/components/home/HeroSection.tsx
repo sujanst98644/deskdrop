@@ -1,34 +1,50 @@
-import Link from "next/link";
+"use client";
+
+import { useRef } from "react";
+import Autoplay from "embla-carousel-autoplay";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { HeroSlide } from "./HeroSlide";
+
+const slides = [
+  {
+    image: "/old-book.jpg",
+  },
+  {
+    image: "/too-many-books.jpg",
+  },
+  {
+    image: "/electronics.jpg",
+  },
+];
 
 export function HeroSection() {
+  const plugin = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true })
+  );
+
   return (
-    <section className="border border-neutral-300 bg-neutral-50 px-8 py-14 md:px-16 md:py-20">
-      <div className="max-w-xl">
-        <p className="text-sm font-semibold uppercase tracking-wide text-orange-600">
-          Deskdrop
-        </p>
-        <h1 className="mt-2 text-3xl font-bold leading-tight md:text-4xl">
-          Buy and sell with fellow students
-        </h1>
-        <p className="mt-4 text-neutral-600">
-          Textbooks, electronics, dorm essentials — find it on campus or list
-          your own in minutes.
-        </p>
-        <div className="mt-6 flex gap-3">
-          <Link
-            href="/browse"
-            className="border border-black bg-black px-6 py-3 text-sm font-medium text-white hover:bg-neutral-800"
-          >
-            Browse listings
-          </Link>
-          <Link
-            href="/sell/new"
-            className="border border-black px-6 py-3 text-sm font-medium hover:bg-neutral-100"
-          >
-            Sell an item
-          </Link>
-        </div>
-      </div>
-    </section>
+    <Carousel
+      plugins={[plugin.current]}
+      className="w-full"
+      opts={{
+        loop: true,
+      }}
+    >
+      <CarouselContent>
+        {slides.map((slide, index) => (
+          <CarouselItem key={index}>
+            <HeroSlide image={slide.image} />
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="left-4" />
+      <CarouselNext className="right-4" />
+    </Carousel>
   );
 }

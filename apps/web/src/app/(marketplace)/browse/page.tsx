@@ -14,9 +14,9 @@ export default async function BrowsePage() {
   ]);
 
   return (
-    <div className="container gap-6 py-8">
+    <div className=" gap-6 py-8">
       <HeroSection />
-      <div className="flex-1 mt-10">
+      <div className="container flex-1 mt-10">
         <h1 className="text-xl font-bold">Browse listings</h1>
         <p className="mt-1 text-sm text-muted-foreground">{listings.length} available</p>
 
