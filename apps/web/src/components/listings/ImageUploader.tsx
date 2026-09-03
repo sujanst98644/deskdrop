@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { X, Upload, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { uploadImageAction } from "@/lib/actions/upload";
 
 interface ImageUploaderProps {
   images: string[];
@@ -13,6 +14,7 @@ interface ImageUploaderProps {
 export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = useCallback(
     async (file: File) => {
@@ -25,29 +27,16 @@ export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps)
       setError(null);
 
       try {
-        // 1. Get signed params from our API
-        const res = await fetch("/api/upload-auth");
-        const { token, expire, signature, publicKey, urlEndpoint } = await res.json();
-
-        // 2. Build FormData for ImageKit
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("publicKey", publicKey);
-        formData.append("signature", signature);
-        formData.append("token", token);
-        formData.append("expire", expire.toString());
 
-        // 3. Upload to ImageKit
-        const uploadRes = await fetch(`${urlEndpoint}/api/v1/files/upload`, {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(data.message || "Upload failed");
-
-        // 4. Add the URL to our images array
-        onChange([...images, data.url]);
+        const result = await uploadImageAction(formData);
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        if (result.url) {
+          onChange([...images, result.url]);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Upload failed");
       } finally {
@@ -70,9 +59,14 @@ export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps)
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) handleUpload(file);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     },
     [handleUpload]
   );
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
 
   const removeImage = (index: number) => {
     onChange(images.filter((_, i) => i !== index));
@@ -80,7 +74,6 @@ export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps)
 
   return (
     <div className="space-y-3">
-      {/* Image preview grid */}
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {images.map((url, idx) => (
@@ -98,15 +91,15 @@ export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps)
         </div>
       )}
 
-      {/* Upload dropzone */}
       <div
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
         className={cn(
-          "border-2 border-dashed rounded-lg p-8 text-center transition",
+          "border-2 border-dashed rounded-lg p-8 text-center transition cursor-pointer",
           uploading ? "opacity-50 pointer-events-none" : "hover:border-primary",
           images.length >= max && "hidden"
         )}
+        onClick={triggerFileInput}
       >
         {uploading ? (
           <div className="flex flex-col items-center gap-2">
@@ -116,23 +109,20 @@ export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps)
         ) : (
           <div className="flex flex-col items-center gap-2">
             <Upload className="w-8 h-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Drag & drop an image, or{" "}
-              <label className="text-primary cursor-pointer hover:underline">
-                browse
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileInput}
-                  disabled={uploading}
-                />
-              </label>
-            </p>
-            <p className="text-xs text-muted-foreground">PNG, JPG, WEBP up to 10MB</p>
+            <p className="text-sm text-muted-foreground">Click or drag & drop an image</p>
+            <p className="text-xs text-muted-foreground">PNG, JPG, WEBP up to 5MB</p>
           </div>
         )}
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileInput}
+        disabled={uploading}
+      />
 
       {error && <p className="text-sm text-destructive">{error}</p>}
       <p className="text-xs text-muted-foreground">
