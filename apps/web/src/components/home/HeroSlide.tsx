@@ -10,7 +10,13 @@ export function HeroSlide({ image }: HeroSlideProps) {
     <section className="relative w-full min-h-[50vh] flex items-center overflow-hidden">
       {/* Background image with overlay */}
       <div className="absolute inset-0 z-0">
-        <Image src={image} alt="Campus scene" fill className="object-cover object-top" priority />
+        <Image
+          src={image}
+          alt="Campus scene"
+          fill
+          className="object-cover object-top"
+          priority
+        />
         <div className="absolute inset-0 bg-black/50" />
       </div>
 
@@ -26,16 +32,16 @@ export function HeroSlide({ image }: HeroSlideProps) {
           Textbooks, electronics, dorm essentials — find it on campus or list
           your own in minutes.
         </p>
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href="/browse"
-            className="border border-black bg-black px-6 py-3 text-sm font-medium text-white hover:bg-neutral-800"
+            className="px-6 py-3 text-sm font-medium text-white bg-black hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80 transition"
           >
             Browse listings
           </Link>
           <Link
             href="/sell/new"
-            className="border border-black bg-white px-6 py-3 text-sm font-medium hover:bg-neutral-100"
+            className="px-6 py-3 text-sm font-medium text-black bg-white  hover:bg-neutral-100 dark:bg-black dark:text-white dark:border-white dark:hover:bg-black/80 transition"
           >
             Sell an item
           </Link>

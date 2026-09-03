@@ -1,16 +1,15 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@deskdrop/db"; // or from "@/lib/prisma" if that file exists
 import { ListingForm } from "@/components/listings/ListingForm";
 
 export default async function NewListingPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/sign-in");
 
-  // Fetch categories for the dropdown
+  // Fetch all categories – remove the `where` condition
   const categories = await prisma.category.findMany({
-    where: { isActive: true },
     orderBy: { name: "asc" },
     select: { id: true, name: true },
   });

@@ -80,7 +80,7 @@ export function Header({
 
         <Link
           href="/sell/new"
-          className="flex items-center gap-2 whitespace-nowrap border border-black bg-foreground px-5 py-2.5 text-sm font-medium text-background hover:opacity-90 text-black"
+          className="flex items-center gap-2 whitespace-nowrap border border-black bg-foreground px-5 py-2.5 text-sm font-medium text-background hover:opacity-90"
         >
           <ShoppingBag className="h-4 w-4" /> Sell an item
         </Link>

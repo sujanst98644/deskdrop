@@ -4,8 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { listingSchema, type ListingInput } from "@deskdrop/validators";
+import { listingSchema } from "@deskdrop/validators";
 import { ZodError } from "zod";
 
 type ActionResult =
@@ -37,7 +36,7 @@ export async function createListingAction(
     // 3. Validate with Zod
     const validated = listingSchema.parse(rawData);
 
-    // 4. Convert Rs to Paisa (store as integer)
+    // 4. Convert Rs to Paisa
     const pricePaisa = Math.round(validated.priceRs * 100);
 
     // 5. Create listing in DB
@@ -55,10 +54,12 @@ export async function createListingAction(
       },
     });
 
-    // 6. Revalidate and redirect
+    // 6. Revalidate cache
     revalidatePath("/browse");
     revalidatePath("/dashboard/listings");
-    redirect(`/listings/${listing.id}`);
+
+    // 7. Return the listing ID (client handles redirect)
+    return { success: true, listingId: listing.id };
   } catch (error) {
     if (error instanceof ZodError) {
       const fieldErrors: Record<string, string[]> = {};
@@ -71,6 +72,8 @@ export async function createListingAction(
       });
       return { success: false, errors: fieldErrors };
     }
+    
+    console.error("Create listing error:", error);
     return {
       success: false,
       errors: { _form: ["Something went wrong. Please try again."] },

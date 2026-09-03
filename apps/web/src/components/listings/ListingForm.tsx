@@ -1,30 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { listingSchema, type ListingInput, conditionEnum } from "@deskdrop/validators";
+import { listingSchema, type ListingInput } from "@deskdrop/validators";
 import { createListingAction } from "@/lib/actions/listing";
 import { ImageUploader } from "@/components/listings/ImageUploader";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 
 const conditions = [
   { value: "NEW", label: "New" },
@@ -38,13 +20,18 @@ interface ListingFormProps {
 }
 
 export function ListingForm({ categories }: ListingFormProps) {
-  const { toast } = useToast();
-  const [state, formAction, pending] = useActionState(createListingAction, {
-    success: false,
-    errors: {},
-  });
+  const [isPending, startTransition] = useTransition();
+  const [serverErrors, setServerErrors] = useState<Record<string, string[]>>({});
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const form = useForm<ListingInput>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    setError,
+  } = useForm<ListingInput>({
     resolver: zodResolver(listingSchema),
     defaultValues: {
       title: "",
@@ -57,154 +44,177 @@ export function ListingForm({ categories }: ListingFormProps) {
     },
   });
 
-  // Handle image changes separately – we need to set the field value
+  const images = watch("images");
+
   const handleImagesChange = (urls: string[]) => {
-    form.setValue("images", urls, { shouldValidate: true });
+    setValue("images", urls, { shouldValidate: true });
   };
 
-  // If server returned field errors, set them on the form
-  if (!state.success && state.errors) {
-    // We'll display errors via the form's error state
-    // The form will show errors when we call trigger() or on submit
-  }
+  const onSubmit = (data: ListingInput) => {
+    setServerErrors({});
+    setSuccessMessage(null);
+
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("priceRs", String(data.priceRs));
+    formData.append("condition", data.condition);
+    formData.append("categoryId", data.categoryId);
+    if (data.campusCity) formData.append("campusCity", data.campusCity);
+    formData.append("images", JSON.stringify(data.images));
+
+    startTransition(async () => {
+      const result = await createListingAction(null, formData);
+
+      if (!result.success && result.errors) {
+        setServerErrors(result.errors);
+        // Map server errors to form fields
+        Object.entries(result.errors).forEach(([key, messages]) => {
+          if (key !== "_form") {
+            setError(key as any, { message: messages[0] });
+          }
+        });
+        // Show form-level error in a simple alert
+        if (result.errors._form) {
+          alert(result.errors._form[0]);
+        }
+      } else if (result.success) {
+        setSuccessMessage("Listing published! Redirecting...");
+        setTimeout(() => {
+          window.location.href = `/listings/${result.listingId}`;
+        }, 1000);
+      }
+    });
+  };
 
   return (
-    <Form {...form}>
-      <form action={formAction} className="space-y-6">
-        {/* Hidden field for images – we pass as JSON string */}
-        <input type="hidden" name="images" value={JSON.stringify(form.watch("images"))} />
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {successMessage && (
+        <div className="bg-green-100 dark:bg-green-900/30 border border-green-400 text-green-700 dark:text-green-300 px-4 py-3 rounded">
+          {successMessage}
+        </div>
+      )}
 
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. Calculus Textbook 3rd Edition" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      {/* Title */}
+      <div>
+        <label htmlFor="title" className="block text-sm font-medium mb-1">
+          Title <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="title"
+          {...register("title")}
+          className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          placeholder="e.g. Calculus Textbook 3rd Edition"
         />
+        {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
+      </div>
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Describe your item..." rows={5} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      {/* Description */}
+      <div>
+        <label htmlFor="description" className="block text-sm font-medium mb-1">
+          Description <span className="text-red-500">*</span>
+        </label>
+        <textarea
+          id="description"
+          rows={5}
+          {...register("description")}
+          className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          placeholder="Describe your item..."
         />
+        {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>}
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="priceRs"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price (Rs)</FormLabel>
-                <FormControl>
-                  <Input type="number" step="0.01" placeholder="500" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      {/* Price & Condition */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="priceRs" className="block text-sm font-medium mb-1">
+            Price (Rs) <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="priceRs"
+            type="number"
+            step="0.01"
+            {...register("priceRs", { valueAsNumber: true })}
+            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+            placeholder="500"
           />
-
-          <FormField
-            control={form.control}
-            name="condition"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Condition</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select condition" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {conditions.map((c) => (
-                      <SelectItem key={c.value} value={c.value}>
-                        {c.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {errors.priceRs && <p className="text-sm text-red-500 mt-1">{errors.priceRs.message}</p>}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="categoryId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div>
+          <label htmlFor="condition" className="block text-sm font-medium mb-1">
+            Condition <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="condition"
+            {...register("condition")}
+            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          >
+            <option value="">Select condition</option>
+            {conditions.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          {errors.condition && <p className="text-sm text-red-500 mt-1">{errors.condition.message}</p>}
+        </div>
+      </div>
 
-          <FormField
-            control={form.control}
-            name="campusCity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Campus / City (optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g. Kathmandu University" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      {/* Category & Campus */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="categoryId" className="block text-sm font-medium mb-1">
+            Category <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="categoryId"
+            {...register("categoryId")}
+            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          >
+            <option value="">Select category</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          {errors.categoryId && <p className="text-sm text-red-500 mt-1">{errors.categoryId.message}</p>}
         </div>
 
-        {/* Image Uploader */}
-        <div className="space-y-2">
-          <FormLabel>Images (1-3)</FormLabel>
-          <ImageUploader
-            images={form.watch("images")}
-            onChange={handleImagesChange}
-            max={3}
+        <div>
+          <label htmlFor="campusCity" className="block text-sm font-medium mb-1">
+            Campus / City (optional)
+          </label>
+          <input
+            id="campusCity"
+            {...register("campusCity")}
+            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+            placeholder="e.g. Kathmandu University"
           />
-          {state.errors?.images && (
-            <p className="text-sm text-destructive">{state.errors.images[0]}</p>
-          )}
+          {errors.campusCity && <p className="text-sm text-red-500 mt-1">{errors.campusCity.message}</p>}
         </div>
+      </div>
 
-        {state.errors?._form && (
-          <p className="text-sm text-destructive">{state.errors._form[0]}</p>
-        )}
+      {/* Images */}
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Images (1-3) <span className="text-red-500">*</span>
+        </label>
+        <ImageUploader images={images} onChange={handleImagesChange} max={3} />
+        {serverErrors.images && <p className="text-sm text-red-500 mt-1">{serverErrors.images[0]}</p>}
+        {errors.images && <p className="text-sm text-red-500 mt-1">{errors.images.message}</p>}
+      </div>
 
-        <Button type="submit" disabled={pending} className="w-full">
-          {pending ? "Creating..." : "Publish Listing"}
-        </Button>
-      </form>
-    </Form>
+      {/* Submit */}
+      <Button type="submit" disabled={isPending} className="w-full">
+        {isPending ? "Creating..." : "Publish Listing"}
+      </Button>
+
+      {/* Server-level errors */}
+      {serverErrors._form && (
+        <p className="text-sm text-red-500 text-center">{serverErrors._form[0]}</p>
+      )}
+    </form>
   );
 }

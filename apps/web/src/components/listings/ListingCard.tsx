@@ -34,7 +34,7 @@ export function ListingCard({
   return (
     <Link
       href={`/listings/${id}`}
-      className="group block overflow-hidden border border-neutral-300 bg-card shadow-sm transition-shadow hover:shadow-lg"
+      className="group block overflow-hidden border border-border bg-card shadow-sm transition-shadow hover:shadow-lg"
     >
       <div className="relative aspect-square bg-muted">
         {image ? (
@@ -52,12 +52,15 @@ export function ListingCard({
       </div>
 
       <div className="p-4">
-        <h3 className="line-clamp-2 text-sm font-medium">{title}</h3>
-        <p className="mt-2 text-lg font-bold">{formatRs(pricePaisa)}</p>
+        <h3 className="line-clamp-2 text-sm font-medium text-foreground">{title}</h3>
+        <p className="mt-2 text-lg font-bold text-primary">{formatRs(pricePaisa)}</p>
         <p className="mt-1 text-xs text-muted-foreground">by {sellerName}</p>
-        <button className="mt-3 flex w-full items-center justify-center gap-2 border border-black py-2 text-sm font-medium hover:bg-neutral-50">
-          Add to cart
-        </button>
+
+        {/* Simple visual indicator – no interactivity needed */}
+        <div className="mt-3 flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">View details</span>
+          <span className="text-primary transition-transform group-hover:translate-x-1">→</span>
+        </div>
       </div>
     </Link>
   );
