@@ -80,3 +80,44 @@ export async function createListingAction(
     };
   }
 }
+
+export async function deleteListingAction({
+  listingId,
+}: {
+  listingId: string;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const listing = await prisma.listing.findUnique({
+      where: { id: listingId },
+      select: { sellerId: true, status: true },
+    });
+
+    if (!listing) {
+      return { success: false, error: "Listing not found" };
+    }
+
+    if (listing.sellerId !== session.user.id) {
+      return { success: false, error: "You don't own this listing" };
+    }
+
+    // Only allow deletion if draft or available (not sold)
+    if (listing.status === "SOLD") {
+      return { success: false, error: "Cannot delete a sold listing" };
+    }
+
+    await prisma.listing.delete({
+      where: { id: listingId },
+    });
+
+    revalidatePath("/dashboard/listings");
+    return { success: true };
+  } catch (error) {
+    console.error("Delete listing error:", error);
+    return { success: false, error: "Something went wrong" };
+  }
+}

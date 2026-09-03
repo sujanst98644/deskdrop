@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatRs } from "@/lib/utils/money";
+import { requestToBuyAction } from "@/lib/actions/order";
 
 interface ListingDetailPageProps {
   params: {
@@ -32,7 +33,6 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
   const isOwner = session?.user?.id === listing.sellerId;
   const isAvailable = listing.status === "AVAILABLE";
 
-  // Condition label mapping
   const conditionLabels: Record<string, string> = {
     NEW: "New",
     LIKE_NEW: "Like New",
@@ -45,7 +45,7 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left: Images */}
         <div className="space-y-3">
-          <div className="relative aspect-square bg-muted overflow-hidden">
+          <div className="relative aspect-square bg-muted rounded-xl overflow-hidden">
             {listing.images?.[0] ? (
               <Image
                 src={listing.images[0]}
@@ -80,7 +80,7 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
         <div className="space-y-4">
           <div className="flex items-start justify-between">
             <h1 className="text-2xl md:text-3xl font-bold">{listing.title}</h1>
-            <Badge variant="secondary" className="capitalize rounded-xs" >
+            <Badge variant="secondary" className="capitalize">
               {conditionLabels[listing.condition] || listing.condition}
             </Badge>
           </div>
@@ -141,9 +141,9 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
                 {/* Future: delete button */}
               </div>
             ) : isAvailable ? (
-              <form action="/api/orders/request" method="POST">
+              <form action={requestToBuyAction} method="POST" className="mt-4">
                 <input type="hidden" name="listingId" value={listing.id} />
-                <Button type="submit" className="w-full mt-4">
+                <Button type="submit" className="w-full">
                   Request to buy
                 </Button>
               </form>
