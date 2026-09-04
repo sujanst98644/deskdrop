@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: deskdrop-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: deskdrop
+      POSTGRES_PASSWORD: deskdrop
+      POSTGRES_DB: deskdrop
+    ports:
+      - "5432:5432"
+    volumes:
+      # Postgres 18+ wants the whole directory mounted, not the /data subdir.
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U deskdrop -d deskdrop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
