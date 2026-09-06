@@ -1,15 +1,12 @@
 import { requireSession } from "@/lib/auth-guard";
-import { prisma } from "@/db";
 import { ListingForm } from "@/components/listings/ListingForm";
+import { getCategories } from "@/lib/categories";
 
 export default async function NewListingPage() {
   await requireSession();
 
   // Fetch all categories – remove the `where` condition
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-    select: { id: true, name: true },
-  });
+  const categories = await getCategories();
 
   return (
     <div className="container py-8">

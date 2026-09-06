@@ -8,8 +8,6 @@ import { formatRs } from "@/lib/utils";
 import { MessageThread } from "@/components/messages/MessageThread";
 import { RoleBadge } from "@/components/messages/RoleBadge";
 
-export const dynamic = "force-dynamic";
-
 export default async function ConversationPage({
   params,
 }: {

@@ -6,8 +6,6 @@ import { MessagesShell } from "@/components/messages/MessagesShell";
 import { ConversationSidebar } from "@/components/messages/ConversationSidebar";
 import { InboxRealtime } from "@/components/messages/InboxRealtime";
 
-export const dynamic = "force-dynamic";
-
 /**
  * Owns the conversation list for every route under /messages, so navigating
  * between threads swaps only the right-hand pane and the list keeps its scroll

@@ -7,6 +7,7 @@ import { getBrowseFilters } from "@/lib/browse";
 import { conditionEnum } from "@/lib/validations";
 import { SearchX } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
+import { getCategories } from "@/lib/categories";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -83,10 +84,7 @@ export default async function BrowsePage({
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   // Categories for filter dropdown
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-    select: { id: true, name: true, slug: true },
-  });
+  const categories = await getCategories();
 
   return (
     <div className="container py-8">

@@ -2,6 +2,7 @@ import { prisma } from "@/db";
 import { requireSession } from "@/lib/auth-guard";
 import { notFound, redirect } from "next/navigation";
 import { EditListingForm } from "@/components/listings/EditListingForm";
+import { getCategories } from "@/lib/categories";
 
 export default async function EditListingPage({
   params,
@@ -31,10 +32,7 @@ export default async function EditListingPage({
   }
 
   // Fetch categories for dropdown
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-    select: { id: true, name: true },
-  });
+  const categories = await getCategories();
 
   // Convert price to Rs (from paisa)
   const listingData = {
