@@ -5,6 +5,8 @@ import { SortDropdown } from "@/components/browse/SortDropdown";
 import { Pagination } from "@/components/browse/Pagination";
 import { getBrowseFilters } from "@/lib/browse";
 import { conditionEnum } from "@/lib/validations";
+import { SearchX } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -108,14 +110,13 @@ export default async function BrowsePage({
           </div>
 
           {listings.length === 0 ? (
-            <div className="border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
-              <h3 className="text-lg font-semibold">No listings found</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Try adjusting your filters or search terms.
-              </p>
-            </div>
+            <EmptyState
+              icon={SearchX}
+              title="No listings found"
+              description="Try adjusting your filters or search terms."
+            />
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
               {listings.map((listing) => (
                 <ListingCard
                   key={listing.id}

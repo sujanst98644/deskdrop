@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ImageOff } from "lucide-react";
+import { ArrowRight, ImageOff } from "lucide-react";
 import { formatRs } from "@/lib/utils";
 import { conditionLabel } from "@/lib/listing-labels";
 
@@ -29,7 +29,7 @@ export function ListingCard({
   return (
     <Link
       href={`/listings/${id}`}
-      className="group block overflow-hidden border border-border bg-card transition-shadow hover:shadow-2xs"
+      className="group flex h-full flex-col overflow-hidden border border-border bg-card transition-shadow hover:shadow-2xs"
     >
       <div className="relative aspect-square bg-muted">
         {image ? (
@@ -47,15 +47,18 @@ export function ListingCard({
         </span>
       </div>
 
-      <div className="p-4">
-        <h3 className="line-clamp-2 text-sm font-medium text-foreground">{title}</h3>
+      <div className="flex flex-1 flex-col p-4">
+        {/* Two lines are reserved whether or not the title needs them, so the
+            price and footer line up across every card in a row. */}
+        <h3 className="line-clamp-2 min-h-10 text-sm font-medium text-foreground">
+          {title}
+        </h3>
         <p className="mt-2 text-lg font-bold text-primary">{formatRs(pricePaisa)}</p>
         <p className="mt-1 text-xs text-muted-foreground">by {sellerName}</p>
 
-        {/* Simple visual indicator – no interactivity needed */}
-        <div className="mt-3 flex items-center justify-between text-sm">
+        <div className="mt-auto flex items-center justify-between pt-3 text-sm">
           <span className="text-muted-foreground">View details</span>
-          <span className="text-primary transition-transform group-hover:translate-x-1">→</span>
+          <ArrowRight className="size-4 text-primary transition-transform group-hover:translate-x-1" />
         </div>
       </div>
     </Link>

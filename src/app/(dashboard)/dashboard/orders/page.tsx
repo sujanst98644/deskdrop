@@ -2,72 +2,113 @@ import { prisma, type Prisma } from "@/db";
 import { requireSession } from "@/lib/auth-guard";
 import { formatRs } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
+import { ImageOff, PackageOpen, ShoppingBag, Store } from "lucide-react";
 import { OrderStatusBadge } from "@/components/orders/OrderStatusBadge";
 import { OrderActions } from "@/components/orders/OrderActions";
+import { EmptyState } from "@/components/ui/empty-state";
 
-export default async function OrdersPage() {
+const tabs = [
+  { id: "buying", label: "Buying", icon: ShoppingBag },
+  { id: "selling", label: "Selling", icon: Store },
+] as const;
+
+type TabId = (typeof tabs)[number]["id"];
+
+export default async function OrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const session = await requireSession();
+  const { tab } = await searchParams;
 
-  // Fetch orders where user is buyer or seller
+  // The tab lives in the URL so the page stays a server component and each
+  // view is linkable.
+  const activeTab: TabId = tab === "selling" ? "selling" : "buying";
+
   const orders = await prisma.order.findMany({
     where: {
-      OR: [
-        { buyerId: session.user.id },
-        { sellerId: session.user.id },
-      ],
+      OR: [{ buyerId: session.user.id }, { sellerId: session.user.id }],
     },
     include: {
-      listing: {
-        include: {
-          seller: true,
-          category: true,
-        },
-      },
+      listing: { include: { seller: true, category: true } },
       buyer: true,
       seller: true,
     },
     orderBy: { createdAt: "desc" },
   });
 
-  const buying = orders.filter((o) => o.buyerId === session.user.id);
-  const selling = orders.filter((o) => o.sellerId === session.user.id);
+  const byTab = {
+    buying: orders.filter((order) => order.buyerId === session.user.id),
+    selling: orders.filter((order) => order.sellerId === session.user.id),
+  };
+  const visible = byTab[activeTab];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Orders</h1>
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      <h1 className="text-2xl font-bold">My orders</h1>
 
-      {/* Buying */}
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-4">Buying</h2>
-        {buying.length === 0 ? (
-          <p className="text-muted-foreground">You haven&apos;t requested any items yet.</p>
+      <div className="mt-6 flex gap-6 border-b border-border">
+        {tabs.map((item) => {
+          const isActive = item.id === activeTab;
+          return (
+            <Link
+              key={item.id}
+              href={`/dashboard/orders?tab=${item.id}`}
+              aria-current={isActive ? "page" : undefined}
+              className={`-mb-px flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors ${
+                isActive
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <item.icon className="size-4" />
+              {item.label}
+              <span
+                className={`px-1.5 py-0.5 text-xs ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {byTab[item.id].length}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="mt-6">
+        {visible.length === 0 ? (
+          <EmptyState
+            icon={PackageOpen}
+            title={
+              activeTab === "buying"
+                ? "You haven't requested any items yet"
+                : "No one has requested your items yet"
+            }
+            description={
+              activeTab === "buying"
+                ? "Requests you send to sellers will show up here."
+                : "When a buyer requests one of your listings, it lands here."
+            }
+          />
         ) : (
           <div className="space-y-4">
-            {buying.map((order) => (
-              <OrderCard key={order.id} order={order} role="buyer" />
+            {visible.map((order) => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                role={activeTab === "buying" ? "buyer" : "seller"}
+              />
             ))}
           </div>
         )}
-      </section>
-
-      {/* Selling */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Selling</h2>
-        {selling.length === 0 ? (
-          <p className="text-muted-foreground">No one has requested your items yet.</p>
-        ) : (
-          <div className="space-y-4">
-            {selling.map((order) => (
-              <OrderCard key={order.id} order={order} role="seller" />
-            ))}
-          </div>
-        )}
-      </section>
+      </div>
     </div>
   );
 }
-
-// --- OrderCard component ---
 
 type OrderWithDetails = Prisma.OrderGetPayload<{
   include: {
@@ -88,33 +129,39 @@ function OrderCard({
   const otherUser = role === "buyer" ? order.seller : order.buyer;
 
   return (
-    <div className="border border-border p-4 bg-card hover:shadow-2xs transition">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="border border-border bg-card p-4 transition-shadow hover:shadow-2xs">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-muted overflow-hidden flex-shrink-0">
+          <div className="relative size-16 shrink-0 overflow-hidden bg-muted">
             {listing.images?.[0] ? (
-              <img
+              <Image
                 src={listing.images[0]}
-                alt={listing.title}
-                className="w-full h-full object-cover"
+                alt=""
+                fill
+                sizes="64px"
+                className="object-cover"
+                unoptimized
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                No image
+              <div className="flex h-full items-center justify-center text-muted-foreground">
+                <ImageOff className="size-5" />
               </div>
             )}
           </div>
-          <div>
+          <div className="min-w-0">
             <Link
               href={`/listings/${listing.id}`}
               className="font-medium hover:underline"
             >
               {listing.title}
             </Link>
-            <p className="text-sm text-muted-foreground">
-              {formatRs(listing.pricePaisa)} • {otherUser.name}
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {formatRs(listing.pricePaisa)} ·{" "}
+              {role === "buyer" ? "from" : "for"} {otherUser.name}
             </p>
-            <OrderStatusBadge status={order.status} />
+            <div className="mt-2">
+              <OrderStatusBadge status={order.status} />
+            </div>
           </div>
         </div>
 

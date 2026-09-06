@@ -4,6 +4,8 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { SectionHeader } from "@/components/home/SectionHeader";
 import { AdBanner } from "@/components/home/AdBanner";
 import { HowItWorks } from "@/components/home/HowItWorks";
+import { PackageOpen } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 function rowCap(index: number) {
   if (index < 4) return "";
@@ -31,10 +33,11 @@ export default async function HomePage() {
           linkText="View all"
         />
         {newArrivals.length === 0 ? (
-          <div className="border border-dashed border-border bg-muted/30 py-10 text-center">
-            <p className="text-muted-foreground">No listings yet.</p>
-            <p className="mt-1 text-sm text-muted-foreground">Be the first to sell!</p>
-          </div>
+          <EmptyState
+            icon={PackageOpen}
+            title="No listings yet"
+            description="Be the first to put something up for sale."
+          />
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {newArrivals.map((listing, index) => (

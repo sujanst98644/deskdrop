@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ListPlus, MessagesSquare, Handshake } from "lucide-react";
+import { ArrowRight, ListPlus, MessagesSquare, Handshake } from "lucide-react";
 
 const steps = [
   {
@@ -66,9 +66,10 @@ export function HowItWorks() {
           </Link>
           <Link
             href="/browse"
-            className="text-sm font-medium underline-offset-4 hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm font-medium underline-offset-4 hover:underline"
           >
-            Or see what&apos;s for sale →
+            Or see what&apos;s for sale
+            <ArrowRight className="size-4" />
           </Link>
         </div>
       </div>

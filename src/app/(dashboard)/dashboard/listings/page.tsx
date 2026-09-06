@@ -3,7 +3,8 @@ import { requireSession } from "@/lib/auth-guard";
 import { formatRs } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
-import { ImageOff, Plus } from "lucide-react";
+import { ImageOff, PackageOpen, Plus } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { DeleteListingButton } from "@/components/listings/DeleteListingButton";
 import { conditionLabel, statusLabel } from "@/lib/listing-labels";
@@ -37,17 +38,23 @@ export default async function MyListingsPage() {
       </div>
 
       {listings.length === 0 ? (
-        <div className="border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
-          <p className="text-muted-foreground">You haven&apos;t listed anything yet.</p>
-          <Link
-            href="/sell/new"
-            className="mt-2 inline-block font-medium text-primary hover:underline"
-          >
-            Create your first listing
-          </Link>
-        </div>
+        <EmptyState
+          icon={PackageOpen}
+          title="You haven't listed anything yet"
+          description="Anything you put up for sale will show up here."
+          action={
+            <Button
+              className="h-10"
+              nativeButton={false}
+              render={<Link href="/sell/new" />}
+            >
+              <Plus />
+              Create your first listing
+            </Button>
+          }
+        />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {listings.map((listing) => (
             <div
               key={listing.id}

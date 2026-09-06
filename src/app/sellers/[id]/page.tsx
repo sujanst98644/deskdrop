@@ -2,7 +2,8 @@ import { prisma } from "@/db";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { ListingCard } from "@/components/listings/ListingCard";
-import { CalendarDays, Package } from "lucide-react";
+import { CalendarDays, Package, PackageOpen } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default async function SellerProfilePage({
   params,
@@ -58,11 +59,13 @@ export default async function SellerProfilePage({
       </div>
 
       {user.listings.length === 0 ? (
-        <div className="border border-dashed border-border bg-muted/30 px-6 py-16 text-center text-muted-foreground">
-          This seller has no active listings.
-        </div>
+        <EmptyState
+          icon={PackageOpen}
+          title="No active listings"
+          description="This seller doesn't have anything for sale right now."
+        />
       ) : (
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {user.listings.map((listing) => (
             <ListingCard
               key={listing.id}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
 interface AdBannerProps {
   title: string;
@@ -37,7 +38,8 @@ export function AdBanner({
             href={ctaLink}
             className="mt-6 inline-flex items-center gap-2 bg-primary px-8 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            {ctaText} <span aria-hidden="true">→</span>
+            {ctaText}
+            <ArrowRight className="size-4" />
           </Link>
         </div>
       </div>
