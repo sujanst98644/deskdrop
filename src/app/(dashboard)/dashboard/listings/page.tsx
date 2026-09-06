@@ -3,7 +3,10 @@ import { requireSession } from "@/lib/auth-guard";
 import { formatRs } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
+import { ImageOff, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { DeleteListingButton } from "@/components/listings/DeleteListingButton";
+import { conditionLabel, statusLabel } from "@/lib/listing-labels";
 
 export default async function MyListingsPage() {
   const session = await requireSession();
@@ -16,20 +19,30 @@ export default async function MyListingsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">My Listings</h1>
-        <Link
-          href="/sell/new"
-          className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition"
+      <div className="mb-6 flex flex-wrap items-center justify-start gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">My listings</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {listings.length} listing{listings.length === 1 ? "" : "s"}
+          </p>
+        </div>
+        <Button
+          className="h-10"
+          nativeButton={false}
+          render={<Link href="/sell/new" />}
         >
-          + New Listing
-        </Link>
+          <Plus />
+          New listing
+        </Button>
       </div>
 
       {listings.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
           <p className="text-muted-foreground">You haven&apos;t listed anything yet.</p>
-          <Link href="/sell/new" className="text-primary hover:underline mt-2 inline-block">
+          <Link
+            href="/sell/new"
+            className="mt-2 inline-block font-medium text-primary hover:underline"
+          >
             Create your first listing
           </Link>
         </div>
@@ -38,9 +51,9 @@ export default async function MyListingsPage() {
           {listings.map((listing) => (
             <div
               key={listing.id}
-              className="border border-border overflow-hidden bg-card hover:shadow-md transition"
+              className="flex flex-col overflow-hidden border border-border bg-card transition-shadow hover:shadow-2xs"
             >
-              <Link href={`/listings/${listing.id}`} className="block">
+              <Link href={`/listings/${listing.id}`} className="block flex-1">
                 <div className="relative aspect-video bg-muted">
                   {listing.images?.[0] ? (
                     <Image
@@ -50,35 +63,38 @@ export default async function MyListingsPage() {
                       className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                      No image
+                    <div className="flex h-full flex-col items-center justify-center gap-1.5 text-muted-foreground">
+                      <ImageOff className="size-5" />
+                      <span className="text-sm">No image</span>
                     </div>
                   )}
                   <span
-                    className={`absolute top-2 right-2 px-2 py-0.5 text-xs font-medium ${
+                    className={`absolute right-2 top-2 px-2 py-1 text-xs font-semibold ${
                       listing.status === "AVAILABLE"
                         ? "bg-success text-success-foreground"
                         : "bg-secondary text-secondary-foreground"
                     }`}
                   >
-                    {listing.status}
+                    {statusLabel(listing.status)}
                   </span>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-medium line-clamp-1">{listing.title}</h3>
-                  <p className="text-primary font-bold mt-1">{formatRs(listing.pricePaisa)}</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {listing.category?.name} • {listing.condition}
+                  <h3 className="line-clamp-1 text-sm font-medium">{listing.title}</h3>
+                  <p className="mt-2 text-lg font-bold text-primary">{formatRs(listing.pricePaisa)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {listing.category?.name ?? "Uncategorised"} • {conditionLabel(listing.condition)}
                   </p>
                 </div>
               </Link>
-              <div className="px-4 pb-4 flex gap-2">
-                <Link
-                  href={`/sell/edit/${listing.id}`}
-                  className="flex-1 text-center text-sm border border-input py-1.5 hover:bg-muted transition"
+              <div className="flex gap-2 px-4 pb-4">
+                <Button
+                  variant="outline"
+                  className="h-9 flex-1"
+                  nativeButton={false}
+                  render={<Link href={`/sell/edit/${listing.id}`} />}
                 >
                   Edit
-                </Link>
+                </Button>
                 <DeleteListingButton listingId={listing.id} />
               </div>
             </div>

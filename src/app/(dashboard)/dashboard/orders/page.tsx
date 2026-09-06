@@ -88,7 +88,7 @@ function OrderCard({
   const otherUser = role === "buyer" ? order.seller : order.buyer;
 
   return (
-    <div className="border border-border p-4 bg-card hover:shadow-sm transition">
+    <div className="border border-border p-4 bg-card hover:shadow-2xs transition">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-muted overflow-hidden flex-shrink-0">

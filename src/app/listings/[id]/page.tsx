@@ -17,19 +17,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ListingGallery } from "@/components/listings/ListingGallery";
 import { formatRs } from "@/lib/utils";
+import { conditionLabel } from "@/lib/listing-labels";
 import { requestToBuyAction } from "@/lib/actions/order";
 
 interface ListingDetailPageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ error?: string }>;
 }
-
-const conditionLabels: Record<string, string> = {
-  NEW: "New",
-  LIKE_NEW: "Like New",
-  GOOD: "Good",
-  FAIR: "Fair",
-};
 
 export default async function ListingDetailPage({
   params,
@@ -53,7 +47,7 @@ export default async function ListingDetailPage({
 
   const isOwner = session?.user?.id === listing.sellerId;
   const isAvailable = listing.status === "AVAILABLE";
-  const condition = conditionLabels[listing.condition] ?? listing.condition;
+  const condition = conditionLabel(listing.condition);
   const listedOn = listing.createdAt.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -70,7 +64,7 @@ export default async function ListingDetailPage({
   ];
 
   return (
-    <div className="container py-5 md:py-6">
+    <div className="mx-auto max-w-7xl px-4 py-5 md:py-6">
       <Link
         href="/browse"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"

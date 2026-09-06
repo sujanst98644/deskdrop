@@ -2,19 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { ImageOff } from "lucide-react";
 import { formatRs } from "@/lib/utils";
+import { conditionLabel } from "@/lib/listing-labels";
 
 const conditionColor: Record<string, string> = {
   NEW: "bg-success text-success-foreground",
   LIKE_NEW: "bg-info text-info-foreground",
   GOOD: "bg-warning text-warning-foreground",
   FAIR: "bg-foreground/85 text-background",
-};
-
-const conditionLabel: Record<string, string> = {
-  NEW: "New",
-  LIKE_NEW: "Like New",
-  GOOD: "Good",
-  FAIR: "Fair",
 };
 
 export function ListingCard({
@@ -35,7 +29,7 @@ export function ListingCard({
   return (
     <Link
       href={`/listings/${id}`}
-      className="group block overflow-hidden border border-border bg-card shadow-sm transition-shadow hover:shadow-lg"
+      className="group block overflow-hidden border border-border bg-card transition-shadow hover:shadow-2xs"
     >
       <div className="relative aspect-square bg-muted">
         {image ? (
@@ -49,7 +43,7 @@ export function ListingCard({
         <span
           className={`absolute left-2 top-2 px-2 py-1 text-xs font-semibold ${conditionColor[condition]}`}
         >
-          {conditionLabel[condition]}
+          {conditionLabel(condition)}
         </span>
       </div>
 

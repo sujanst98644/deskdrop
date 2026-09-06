@@ -2,6 +2,7 @@ import { prisma } from "@/db";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { ListingCard } from "@/components/listings/ListingCard";
+import { CalendarDays, Package } from "lucide-react";
 
 export default async function SellerProfilePage({
   params,
@@ -25,33 +26,43 @@ export default async function SellerProfilePage({
   }
 
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-20 h-20 bg-muted overflow-hidden">
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mb-8 flex items-center gap-4 border-b border-border pb-8">
+        <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden bg-muted">
           {user.image ? (
-            <Image src={user.image} alt={user.name} width={80} height={80} className="object-cover" />
+            <Image src={user.image} alt="" fill sizes="80px" className="object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-2xl font-semibold text-muted-foreground">
-              {user.name.charAt(0)}
-            </div>
+            <span className="text-2xl font-semibold text-muted-foreground">
+              {user.name.charAt(0).toUpperCase()}
+            </span>
           )}
         </div>
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold">{user.name}</h1>
-          <p className="text-muted-foreground">
-            Joined {new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {user.listings.length} active listings
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarDays className="size-4" />
+              Joined{" "}
+              {new Date(user.createdAt).toLocaleDateString("en-GB", {
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Package className="size-4" />
+              {user.listings.length} active listing
+              {user.listings.length === 1 ? "" : "s"}
+            </span>
+          </div>
         </div>
       </div>
 
-      <h2 className="text-xl font-semibold mb-4">Listings by {user.name}</h2>
       {user.listings.length === 0 ? (
-        <p className="text-muted-foreground">This user has no active listings.</p>
+        <div className="border border-dashed border-border bg-muted/30 px-6 py-16 text-center text-muted-foreground">
+          This seller has no active listings.
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
           {user.listings.map((listing) => (
             <ListingCard
               key={listing.id}
