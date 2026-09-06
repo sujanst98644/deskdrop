@@ -7,6 +7,7 @@ import Link from "next/link";
 import {
   Search,
   Heart,
+  MessageSquare,
   Package,
   ShoppingBag,
   User,
@@ -15,15 +16,30 @@ import {
 import { useSession, signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { fieldClass } from "@/lib/form-styles";
+import { useInboxUpdates } from "@/lib/pusher/use-inbox-updates";
 
 export function Header({
   categories,
+  unreadMessages = 0,
 }: {
   categories: { id: string; name: string; slug: string }[];
+  unreadMessages?: number;
 }) {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+
+  // The badge starts from the server count, then the socket keeps it live
+  // without re-rendering whatever page it is sitting on. Whichever arrived last
+  // wins: adopting a changed server count during render (rather than in an
+  // effect) avoids a second render pass showing the stale number.
+  const [unread, setUnread] = useState(unreadMessages);
+  const [serverCount, setServerCount] = useState(unreadMessages);
+  if (serverCount !== unreadMessages) {
+    setServerCount(unreadMessages);
+    setUnread(unreadMessages);
+  }
+  useInboxUpdates(session?.user?.id, (event) => setUnread(event.unreadCount));
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +70,17 @@ export function Header({
             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Package className="h-4 w-4" /> My Orders
+          </Link>
+          <Link
+            href="/messages"
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <MessageSquare className="h-4 w-4" /> Messages
+            {unread > 0 && (
+              <span className="bg-primary px-1.5 py-0.5 text-xs font-semibold text-primary-foreground">
+                {unread}
+              </span>
+            )}
           </Link>
           {isPending ? null : session ? (
             <button

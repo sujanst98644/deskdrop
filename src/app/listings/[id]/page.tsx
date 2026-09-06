@@ -19,6 +19,7 @@ import { ListingGallery } from "@/components/listings/ListingGallery";
 import { formatRs } from "@/lib/utils";
 import { conditionLabel } from "@/lib/listing-labels";
 import { requestToBuyAction } from "@/lib/actions/order";
+import { startConversationAction } from "@/lib/actions/message";
 
 interface ListingDetailPageProps {
   params: Promise<{ id: string }>;
@@ -186,17 +187,31 @@ export default async function ListingDetailPage({
                 <User />
                 View profile
               </Button>
-              {/* Placeholder: messaging is not built yet, so the control is
-                  present but disabled rather than pretending to work. */}
-              <Button
-                variant="outline"
-                className="h-9"
-                disabled
-                title="Messaging isn't available yet"
-              >
-                <MessageSquare />
-                Message
-              </Button>
+              {isOwner ? (
+                // Your own listing — there is nobody to message.
+                <Button variant="outline" className="h-9" disabled>
+                  <MessageSquare />
+                  Message
+                </Button>
+              ) : !session ? (
+                <Button
+                  variant="outline"
+                  className="h-9"
+                  nativeButton={false}
+                  render={<Link href={`/sign-in?callbackUrl=/listings/${listing.id}`} />}
+                >
+                  <MessageSquare />
+                  Message
+                </Button>
+              ) : (
+                <form action={startConversationAction}>
+                  <input type="hidden" name="listingId" value={listing.id} />
+                  <Button type="submit" variant="outline" className="h-9 w-full">
+                    <MessageSquare />
+                    Message
+                  </Button>
+                </form>
+              )}
             </div>
           </div>
 

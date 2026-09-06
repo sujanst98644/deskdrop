@@ -46,6 +46,10 @@ model User {
   buyerOrders  Order[]   @relation("BuyerOrders")
   sellerOrders Order[]   @relation("SellerOrders")
 
+  buyerConversations  Conversation[] @relation("BuyerConversations")
+  sellerConversations Conversation[] @relation("SellerConversations")
+  sentMessages        Message[]
+
   @@map("users")
 }
 
@@ -130,7 +134,8 @@ model Listing {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  orders Order[]
+  orders        Order[]
+  conversations Conversation[]
 
   @@index([status])
   @@index([categoryId])
@@ -152,4 +157,58 @@ model Order {
   @@index([buyerId])
   @@index([sellerId])
   @@map("orders")
+}
+
+// --- Messaging ------------------------------------------------------------
+// A thread is scoped to one listing and one buyer: buying two things from the
+// same seller gives two threads, not one confusing one.
+
+model Conversation {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerId   String
+  buyer     User     @relation("BuyerConversations", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId  String
+  seller    User     @relation("SellerConversations", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  // Per-participant read marks — cheaper than a read flag on every message.
+  buyerLastReadAt  DateTime?
+  sellerLastReadAt DateTime?
+
+  // Denormalised from the read marks so the header badge is a single indexed
+  // COUNT instead of loading every conversation to compare timestamps in JS.
+  buyerUnread  Boolean @default(false)
+  sellerUnread Boolean @default(false)
+
+  // Denormalised from the latest message so the unread badge in the header is
+  // one flat query with no joins, on every page render.
+  lastMessageAt DateTime?
+  lastSenderId  String?
+
+  messages  Message[]
+  createdAt DateTime @default(now())
+  // Bumped on every send so the inbox can order by recent activity.
+  updatedAt DateTime @updatedAt
+
+  @@unique([listingId, buyerId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([lastMessageAt])
+  @@index([buyerId, buyerUnread])
+  @@index([sellerId, sellerUnread])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body           String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
 }

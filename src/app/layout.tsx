@@ -5,6 +5,8 @@ import { Toaster } from "sonner";
 import { Header } from "@/components/layout/Header";
 import { prisma } from "@/db";
 import { Footer } from "@/components/layout/Footer";
+import { getSession } from "@/lib/auth-guard";
+import { countUnreadConversations } from "@/lib/messages";
 
 // The layout reads categories from the database on every render, so nothing
 // under it can be statically prerendered at build time.
@@ -22,13 +24,20 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
+  const [categories, session] = await Promise.all([
+    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    getSession(),
+  ]);
+
+  const unreadMessages = session?.user?.id
+    ? await countUnreadConversations(session.user.id)
+    : 0;
 
   return (
     <html lang="en">
       <body className={inter.className}>
         <div className="flex min-h-screen flex-col">
-          <Header categories={categories} />
+          <Header categories={categories} unreadMessages={unreadMessages} />
           <main className="flex-1">{children}</main>
           <Footer />
         </div>

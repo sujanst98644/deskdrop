@@ -39,3 +39,7 @@ export const updateOrderStatusSchema = z.object({
   status: z.enum(["ACCEPTED", "COMPLETED", "CANCELLED"]),
 });
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
+
+export const messageSchema = z.object({
+  body: z.string().trim().min(1, "Write a message first").max(2000, "Too long"),
+});

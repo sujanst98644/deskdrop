@@ -20,7 +20,7 @@ export default async function MyListingsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-wrap items-center justify-start gap-4">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">My listings</h1>
           <p className="mt-1 text-sm text-muted-foreground">
