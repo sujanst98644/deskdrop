@@ -44,9 +44,16 @@ export default async function EditListingPage({
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Edit Listing</h1>
-      <EditListingForm listing={listingData} categories={categories} />
+    <div className="container py-8">
+      <div className="mx-auto max-w-2xl">
+        <h1 className="text-2xl font-bold">Edit listing</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Changes go live as soon as you save.
+        </p>
+        <div className="mt-6 border border-border bg-card p-6 md:p-8">
+          <EditListingForm listing={listingData} categories={categories} />
+        </div>
+      </div>
     </div>
   );
 }

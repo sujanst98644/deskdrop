@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import Image from "next/image";
 import { X, Upload, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uploadImageAction } from "@/lib/actions/upload";
@@ -11,106 +12,159 @@ interface ImageUploaderProps {
   max?: number;
 }
 
-export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps) {
-  const [uploading, setUploading] = useState(false);
+export function ImageUploader({ images, onChange, max = 4 }: ImageUploaderProps) {
+  const [pending, setPending] = useState(0);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUpload = useCallback(
-    async (file: File) => {
-      if (images.length >= max) {
-        setError(`Maximum ${max} images allowed`);
+  const remaining = max - images.length;
+  const uploading = pending > 0;
+
+  const handleFiles = useCallback(
+    async (files: File[]) => {
+      if (files.length === 0) return;
+      if (remaining <= 0) {
+        setError(`You can upload at most ${max} images.`);
         return;
       }
 
-      setUploading(true);
+      // Take only what still fits and say so, rather than silently dropping
+      // the rest of the selection.
+      const selected = files.slice(0, remaining);
+      const skipped = files.length - selected.length;
+
+      setPending(selected.length);
       setError(null);
 
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
+      const results = await Promise.all(
+        selected.map(async (file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          try {
+            const result = await uploadImageAction(formData);
+            if (result.error || !result.url) {
+              return { error: result.error ?? "Upload failed" };
+            }
+            return { url: result.url };
+          } catch (err) {
+            return {
+              error: err instanceof Error ? err.message : "Upload failed",
+            };
+          }
+        })
+      );
 
-        const result = await uploadImageAction(formData);
-        if (result.error) {
-          throw new Error(result.error);
-        }
-        if (result.url) {
-          onChange([...images, result.url]);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Upload failed");
-      } finally {
-        setUploading(false);
+      const uploaded = results.flatMap((r) => ("url" in r && r.url ? [r.url] : []));
+      const firstError = results.find((r) => "error" in r && r.error);
+
+      if (uploaded.length > 0) {
+        onChange([...images, ...uploaded]);
       }
+
+      const problems: string[] = [];
+      if (firstError && "error" in firstError) problems.push(firstError.error!);
+      if (skipped > 0) {
+        problems.push(
+          `${skipped} file${skipped === 1 ? "" : "s"} skipped — only ${remaining} more allowed.`
+        );
+      }
+      setError(problems.length > 0 ? problems.join(" ") : null);
+      setPending(0);
     },
-    [images, onChange, max]
+    [images, max, onChange, remaining]
   );
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
-      const file = e.dataTransfer.files[0];
-      if (file) handleUpload(file);
+      setIsDraggingOver(false);
+      handleFiles(Array.from(e.dataTransfer.files));
     },
-    [handleUpload]
+    [handleFiles]
   );
 
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) handleUpload(file);
+      handleFiles(Array.from(e.target.files ?? []));
       if (fileInputRef.current) fileInputRef.current.value = "";
     },
-    [handleUpload]
+    [handleFiles]
   );
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
-
   const removeImage = (index: number) => {
+    setError(null);
     onChange(images.filter((_, i) => i !== index));
   };
 
   return (
     <div className="space-y-3">
       {images.length > 0 && (
-        <div className="grid grid-cols-3 gap-3">
-          {images.map((url, idx) => (
-            <div key={idx} className="relative aspect-square border overflow-hidden group">
-              <img src={url} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
+        <ul className="grid grid-cols-4 gap-3">
+          {images.map((url, index) => (
+            <li
+              key={url}
+              className="relative aspect-square overflow-hidden border border-border bg-muted"
+            >
+              <Image
+                src={url}
+                alt={`Image ${index + 1}`}
+                fill
+                sizes="25vw"
+                className="object-cover"
+                unoptimized
+              />
               <button
                 type="button"
-                onClick={() => removeImage(idx)}
-                className="absolute top-1 right-1 bg-black/70 text-white p-1 opacity-0 group-hover:opacity-100 transition"
+                onClick={() => removeImage(index)}
+                aria-label={`Remove image ${index + 1}`}
+                // Always visible: a hover-only control is unreachable on touch.
+                className="absolute right-1 top-1 bg-foreground/70 p-1 text-background transition-colors hover:bg-foreground"
               >
-                <X className="w-4 h-4" />
+                <X className="size-4" />
               </button>
-            </div>
+              {index === 0 && (
+                <span className="absolute bottom-0 left-0 bg-foreground/70 px-2 py-0.5 text-xs font-medium text-background">
+                  Cover
+                </span>
+              )}
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
       <div
         onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDraggingOver(true);
+        }}
+        onDragLeave={() => setIsDraggingOver(false)}
+        onClick={() => fileInputRef.current?.click()}
         className={cn(
-          "border-2 border-dashed p-8 text-center transition cursor-pointer",
-          uploading ? "opacity-50 pointer-events-none" : "hover:border-primary",
-          images.length >= max && "hidden"
+          "cursor-pointer border-2 border-dashed border-border p-8 text-center transition-colors",
+          uploading && "pointer-events-none opacity-60",
+          isDraggingOver ? "border-primary bg-accent" : "hover:border-primary",
+          remaining <= 0 && "hidden"
         )}
-        onClick={triggerFileInput}
       >
         {uploading ? (
           <div className="flex flex-col items-center gap-2">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Uploading...</p>
+            <Loader2 className="size-8 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              Uploading {pending} image{pending === 1 ? "" : "s"}…
+            </p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <Upload className="w-8 h-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Click or drag & drop an image</p>
-            <p className="text-xs text-muted-foreground">PNG, JPG, WEBP up to 5MB</p>
+            <Upload className="size-8 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              Click or drag &amp; drop — you can pick several at once
+            </p>
+            <p className="text-xs text-muted-foreground">
+              PNG, JPG, WEBP up to 5MB · {remaining} slot
+              {remaining === 1 ? "" : "s"} left
+            </p>
           </div>
         )}
       </div>
@@ -119,6 +173,7 @@ export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps)
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
         onChange={handleFileInput}
         disabled={uploading}
@@ -127,6 +182,7 @@ export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps)
       {error && <p className="text-sm text-destructive">{error}</p>}
       <p className="text-xs text-muted-foreground">
         {images.length} / {max} images uploaded
+        {images.length > 1 && " — the first is used as the cover"}
       </p>
     </div>
   );

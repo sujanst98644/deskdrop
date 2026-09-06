@@ -131,6 +131,7 @@ export default async function ListingDetailPage({
                 variant="outline"
                 size="lg"
                 className="w-full"
+                nativeButton={false}
                 render={<Link href={`/sell/edit/${listing.id}`} />}
               >
                 Edit listing
@@ -151,6 +152,7 @@ export default async function ListingDetailPage({
             <Button
               size="lg"
               className="w-full"
+              nativeButton={false}
               render={<Link href={`/sign-in?callbackUrl=/listings/${listing.id}`} />}
             >
               Sign in to request
@@ -184,6 +186,7 @@ export default async function ListingDetailPage({
               <Button
                 variant="outline"
                 className="h-9"
+                nativeButton={false}
                 render={<Link href={`/sellers/${listing.seller.id}`} />}
               >
                 <User />

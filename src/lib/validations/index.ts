@@ -22,7 +22,7 @@ export const listingSchema = z.object({
   condition: conditionEnum,
   categoryId: z.string().min(1, "Pick a category"),
   campusCity: z.string().optional(),
-  images: z.array(z.url()).min(1, "Add at least 1 image").max(3, "Max 3 images"),
+  images: z.array(z.url()).min(1, "Add at least 1 image").max(4, "Max 4 images"),
 });
 // `priceRs` is coerced, so the schema's input and output shapes differ:
 // ListingFormValues is what the form holds, ListingInput what it parses to.

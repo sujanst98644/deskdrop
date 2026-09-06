@@ -237,15 +237,15 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
 
       <div>
         <label className="block text-sm font-medium mb-1">
-          Images (1-3) <span className="text-destructive">*</span>
+          Images (1-4) <span className="text-destructive">*</span>
         </label>
-        <ImageUploader images={images} onChange={handleImagesChange} max={3} />
+        <ImageUploader images={images} onChange={handleImagesChange} max={4} />
         {serverErrors.images && <p className="text-sm text-destructive mt-1">{serverErrors.images[0]}</p>}
         {errors.images && <p className="text-sm text-destructive mt-1">{errors.images.message}</p>}
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Updating..." : "Update Listing"}
+      <Button type="submit" disabled={isPending} size="lg" className="h-11 w-full text-sm">
+        {isPending ? "Saving…" : "Save changes"}
       </Button>
 
       {serverErrors._form && (
