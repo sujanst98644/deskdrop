@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";
 import { Header } from "@/components/layout/Header";
 import { prisma } from "@/db";
@@ -26,16 +25,14 @@ export default async function RootLayout({
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className={inter.className}>
-        <Providers>
-          <div className="flex min-h-screen flex-col">
-            <Header categories={categories}/>
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <Toaster richColors position="top-center" />
-        </Providers>
+        <div className="flex min-h-screen flex-col">
+          <Header categories={categories} />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );

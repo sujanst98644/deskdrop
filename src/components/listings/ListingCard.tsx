@@ -3,10 +3,10 @@ import Image from "next/image";
 import { formatRs } from "@/lib/utils";
 
 const conditionColor: Record<string, string> = {
-  NEW: "bg-emerald-500",
-  LIKE_NEW: "bg-blue-500",
-  GOOD: "bg-orange-500",
-  FAIR: "bg-neutral-500",
+  NEW: "bg-success text-success-foreground",
+  LIKE_NEW: "bg-info text-info-foreground",
+  GOOD: "bg-warning text-warning-foreground",
+  FAIR: "bg-secondary text-secondary-foreground",
 };
 
 const conditionLabel: Record<string, string> = {
@@ -45,7 +45,7 @@ export function ListingCard({
           </div>
         )}
         <span
-          className={`absolute left-2 top-0 px-2 pt-2 py-1 text-xs font-semibold text-white ${conditionColor[condition]}`}
+          className={`absolute left-2 top-2 px-2 py-1 text-xs font-semibold ${conditionColor[condition]}`}
         >
           {conditionLabel[condition]}
         </span>

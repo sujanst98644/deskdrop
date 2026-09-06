@@ -1,52 +1,65 @@
 import Link from "next/link";
 import Image from "next/image";
 
-interface HeroSlideProps {
+export interface HeroSlideContent {
   image: string;
+  /** Empty alt when the photo is purely decorative behind the headline. */
+  imageAlt: string;
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  primaryCta: { label: string; href: string };
+  secondaryCta: { label: string; href: string };
 }
 
-export function HeroSlide({ image }: HeroSlideProps) {
-  return (
-    <section className="relative w-full min-h-[50vh] flex items-center overflow-hidden">
-      {/* Background image with overlay */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src={image}
-          alt="Campus scene"
-          fill
-          className="object-cover object-top"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/50" />
-      </div>
+export function HeroSlide({
+  slide,
+  isFirst = false,
+}: {
+  slide: HeroSlideContent;
+  /** The first slide carries the page's <h1> and is the only one worth preloading. */
+  isFirst?: boolean;
+}) {
+  const Heading = isFirst ? "h1" : "h2";
 
-      {/* Content – exactly as you had it, left-aligned */}
-      <div className="relative z-10 max-w-xl px-8 md:px-16">
-        <p className="text-sm font-semibold uppercase tracking-wide text-orange-600">
-          Deskdrop
+  return (
+    <div className="relative flex min-h-[26rem] w-full items-center overflow-hidden md:min-h-[32rem]">
+      <Image
+        src={slide.image}
+        alt={slide.imageAlt}
+        fill
+        sizes="100vw"
+        className="object-cover object-top"
+        preload={isFirst}
+      />
+      <div className="media-scrim" />
+
+      <div className="relative max-w-xl px-8 md:px-16">
+        <p className="text-sm font-semibold uppercase tracking-wide text-brand">
+          {slide.eyebrow}
         </p>
-        <h1 className="mt-2 text-3xl font-bold leading-tight text-white md:text-4xl">
-          Buy and sell with fellow students
-        </h1>
-        <p className="mt-4 text-white/80">
-          Textbooks, electronics, dorm essentials — find it on campus or list
-          your own in minutes.
-        </p>
+        <Heading className="mt-2 text-3xl font-bold leading-tight text-white md:text-4xl">
+          {slide.title}
+        </Heading>
+        <p className="mt-4 text-white/80">{slide.subtitle}</p>
+
+        {/* Sitting on the scrim, these are a fixed dark context — black and white
+            stay put in both themes rather than following the page tokens. */}
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            href="/browse"
-            className="px-6 py-3 text-sm font-medium text-white bg-black hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80 transition"
+            href={slide.primaryCta.href}
+            className="bg-black px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-black/80"
           >
-            Browse listings
+            {slide.primaryCta.label}
           </Link>
           <Link
-            href="/sell/new"
-            className="px-6 py-3 text-sm font-medium text-black bg-white  hover:bg-neutral-100 dark:bg-black dark:text-white dark:border-white dark:hover:bg-black/80 transition"
+            href={slide.secondaryCta.href}
+            className="bg-white px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-white/90"
           >
-            Sell an item
+            {slide.secondaryCta.label}
           </Link>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -77,12 +77,12 @@ export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps)
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {images.map((url, idx) => (
-            <div key={idx} className="relative aspect-square rounded-lg border overflow-hidden group">
+            <div key={idx} className="relative aspect-square border overflow-hidden group">
               <img src={url} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => removeImage(idx)}
-                className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                className="absolute top-1 right-1 bg-black/70 text-white p-1 opacity-0 group-hover:opacity-100 transition"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -95,7 +95,7 @@ export function ImageUploader({ images, onChange, max = 3 }: ImageUploaderProps)
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
         className={cn(
-          "border-2 border-dashed rounded-lg p-8 text-center transition cursor-pointer",
+          "border-2 border-dashed p-8 text-center transition cursor-pointer",
           uploading ? "opacity-50 pointer-events-none" : "hover:border-primary",
           images.length >= max && "hidden"
         )}

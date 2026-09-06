@@ -8,7 +8,7 @@ interface AdBannerProps {
   ctaLink: string;
   image: string; // path to image in public/ or external URL
   imageAlt: string;
-  textAlign?: "left" | "center" | "right";
+  textAlign?: "left" | "center";
 }
 
 export function AdBanner({
@@ -20,41 +20,24 @@ export function AdBanner({
   imageAlt,
   textAlign = "left",
 }: AdBannerProps) {
-  const textAlignClass = {
-    left: "text-left",
-    center: "text-center",
-    right: "text-right",
-  }[textAlign];
+  const isCentered = textAlign === "center";
 
   return (
-    <section className="container relative w-full py-16 md:py-20 overflow-hidden">
-      {/* Background image */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src={image}
-          alt={imageAlt}
-          fill
-          className="object-cover"
-          priority
-        />
-        {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-black/50" />
-      </div>
+    <section className="container">
+      <div className="relative overflow-hidden px-6 py-16 md:px-12 md:py-20">
+        <Image src={image} alt={imageAlt} fill sizes="100vw" className="object-cover" />
+        <div className="media-scrim" />
 
-      {/* Content */}
-      <div className={`relative z-10 container mx-auto px-4 ${textAlignClass}`}>
-        <div className="max-w-2xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">
-            {title}
-          </h2>
-          <p className="mt-3 text-lg text-white/80">
-            {subtitle}
-          </p>
+        <div
+          className={`relative max-w-2xl ${isCentered ? "mx-auto text-center" : "text-left"}`}
+        >
+          <h2 className="text-3xl font-bold text-white md:text-4xl">{title}</h2>
+          <p className="mt-3 text-lg text-white/80">{subtitle}</p>
           <Link
             href={ctaLink}
-            className="inline-block mt-6 bg-white text-black px-8 py-3 font-medium hover:bg-gray-100 transition"
+            className="mt-6 inline-flex items-center gap-2 bg-primary px-8 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            {ctaText} →
+            {ctaText} <span aria-hidden="true">→</span>
           </Link>
         </div>
       </div>

@@ -55,10 +55,10 @@ export default async function MyListingsPage() {
                     </div>
                   )}
                   <span
-                    className={`absolute top-2 right-2 px-2 py-0.5 text-xs font-medium rounded-full ${
+                    className={`absolute top-2 right-2 px-2 py-0.5 text-xs font-medium ${
                       listing.status === "AVAILABLE"
-                        ? "bg-green-500 text-white"
-                        : "bg-neutral-500 text-white"
+                        ? "bg-success text-success-foreground"
+                        : "bg-secondary text-secondary-foreground"
                     }`}
                   >
                     {listing.status}
@@ -75,7 +75,7 @@ export default async function MyListingsPage() {
               <div className="px-4 pb-4 flex gap-2">
                 <Link
                   href={`/sell/edit/${listing.id}`}
-                  className="flex-1 text-center text-sm border border-input rounded-md py-1.5 hover:bg-muted transition"
+                  className="flex-1 text-center text-sm border border-input py-1.5 hover:bg-muted transition"
                 >
                   Edit
                 </Link>

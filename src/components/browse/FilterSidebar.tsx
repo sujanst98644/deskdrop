@@ -69,7 +69,7 @@ export function FilterSidebar({ categories, currentFilters, mobile }: FilterSide
               updateFilters("q", value);
             }
           }}
-          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          className="w-full px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
         />
       </div>
 
@@ -78,7 +78,7 @@ export function FilterSidebar({ categories, currentFilters, mobile }: FilterSide
         <select
           value={currentFilters.category}
           onChange={(e) => updateFilters("category", e.target.value)}
-          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          className="w-full px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
         >
           <option value="all">All categories</option>
           {categories.map((cat) => (
@@ -94,7 +94,7 @@ export function FilterSidebar({ categories, currentFilters, mobile }: FilterSide
         <select
           value={currentFilters.condition}
           onChange={(e) => updateFilters("condition", e.target.value)}
-          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          className="w-full px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
         >
           {conditions.map((c) => (
             <option key={c.value} value={c.value}>
@@ -112,14 +112,14 @@ export function FilterSidebar({ categories, currentFilters, mobile }: FilterSide
             placeholder="Min"
             value={currentFilters.minPrice || ""}
             onChange={(e) => updateFilters("minPrice", e.target.value ? Number(e.target.value) : undefined)}
-            className="w-1/2 px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-1/2 px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
           />
           <input
             type="number"
             placeholder="Max"
             value={currentFilters.maxPrice || ""}
             onChange={(e) => updateFilters("maxPrice", e.target.value ? Number(e.target.value) : undefined)}
-            className="w-1/2 px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-1/2 px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
           />
         </div>
       </div>
@@ -136,7 +136,7 @@ export function FilterSidebar({ categories, currentFilters, mobile }: FilterSide
               updateFilters("campusCity", value);
             }
           }}
-          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          className="w-full px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
         />
       </div>
 

@@ -48,7 +48,7 @@ export default async function ListingDetailPage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left: Images */}
         <div className="space-y-3">
-          <div className="relative aspect-square bg-muted rounded-xl overflow-hidden">
+          <div className="relative aspect-square bg-muted overflow-hidden">
             {listing.images?.[0] ? (
               <Image
                 src={listing.images[0]}
@@ -66,7 +66,7 @@ export default async function ListingDetailPage({
           {listing.images && listing.images.length > 1 && (
             <div className="grid grid-cols-3 gap-2">
               {listing.images.slice(1).map((img, idx) => (
-                <div key={idx} className="relative aspect-square bg-muted rounded-lg overflow-hidden">
+                <div key={idx} className="relative aspect-square bg-muted overflow-hidden">
                   <Image
                     src={img}
                     alt={`${listing.title} ${idx + 2}`}
@@ -110,14 +110,14 @@ export default async function ListingDetailPage({
 
           {/* Seller info */}
           <div className="border-t pt-4 mt-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+            <div className="w-10 h-10 bg-muted flex items-center justify-center">
               {listing.seller.image ? (
                 <Image
                   src={listing.seller.image}
                   alt={listing.seller.name}
                   width={40}
                   height={40}
-                  className="rounded-full"
+                  className="object-cover"
                 />
               ) : (
                 <span className="text-sm font-semibold">{listing.seller.name.charAt(0)}</span>

@@ -3,14 +3,15 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SectionHeader } from "@/components/home/SectionHeader";
 import { AdBanner } from "@/components/home/AdBanner";
+import { HowItWorks } from "@/components/home/HowItWorks";
+
+function rowCap(index: number) {
+  if (index < 4) return "";
+  if (index < 6) return "hidden sm:block";
+  return "hidden lg:block";
+}
 
 export default async function HomePage() {
-  
-  const totalCount = await prisma.listing.count({
-    where: { status: "AVAILABLE" },
-  });
-
-
   const newArrivals = await prisma.listing.findMany({
     where: { status: "AVAILABLE" },
     orderBy: { createdAt: "desc" },
@@ -18,135 +19,52 @@ export default async function HomePage() {
     include: { seller: true },
   });
 
-
-  const flashSale = await prisma.listing.findMany({
-    where: { status: "AVAILABLE" },
-    orderBy: { createdAt: "desc" },
-    take: 4,
-    skip: Math.min(2, Math.max(0, totalCount - 4)), 
-    include: { seller: true },
-  });
-
-
-  const trending = await prisma.listing.findMany({
-    where: { status: "AVAILABLE" },
-    orderBy: { createdAt: "desc" },
-    take: 4,
-    skip: Math.min(6, Math.max(0, totalCount - 4)),
-    include: { seller: true },
-  });
-
-
-  const hasFlashSale = flashSale.length > 0;
-  const hasTrending = trending.length > 0;
-
   return (
-    <main className="space-y-6">
-      {/* Hero */}
+    <>
       <HeroSection />
 
-      <div className="container">
-      {/* Flash Sale – with timer badge */}
-      <section className="container mx-auto px-4 pb-12">
+      <section className="container py-10 md:py-14">
         <SectionHeader
-          title="Flash Sale"
-          subtitle="Limited time deals – grab them before they're gone"
-          link="/browse"
-          linkText="View all"
-        />
-        {!hasFlashSale ? (
-          <div className="text-center py-8 bg-muted/30 rounded-lg border border-dashed">
-            <p className="text-muted-foreground">No flash sale items right now.</p>
-            <p className="text-sm text-muted-foreground mt-1">Check back soon for deals!</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {flashSale.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                pricePaisa={listing.pricePaisa}
-                condition={listing.condition}
-                image={listing.images?.[0]}
-                sellerName={listing.seller.name}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* New Arrivals */}
-      <section className="container mx-auto px-4 pb-12">
-        <SectionHeader
-          title="New Arrivals"
+          title="New arrivals"
           subtitle="Freshly listed items from your campus"
           link="/browse?sort=newest"
           linkText="View all"
         />
         {newArrivals.length === 0 ? (
-          <div className="text-center py-8 bg-muted/30 rounded-lg border border-dashed">
+          <div className="border border-dashed border-border bg-muted/30 py-10 text-center">
             <p className="text-muted-foreground">No listings yet.</p>
-            <p className="text-sm text-muted-foreground mt-1">Be the first to sell!</p>
+            <p className="mt-1 text-sm text-muted-foreground">Be the first to sell!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {newArrivals.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                pricePaisa={listing.pricePaisa}
-                condition={listing.condition}
-                image={listing.images?.[0]}
-                sellerName={listing.seller.name}
-              />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {newArrivals.map((listing, index) => (
+              // Two rows at every width: the grid runs 2/3/4 columns, so the
+              // 5th-6th cards only appear from `sm` and the 7th-8th from `lg`.
+              <div key={listing.id} className={rowCap(index)}>
+                <ListingCard
+                  id={listing.id}
+                  title={listing.title}
+                  pricePaisa={listing.pricePaisa}
+                  condition={listing.condition}
+                  image={listing.images?.[0]}
+                  sellerName={listing.seller.name}
+                />
+              </div>
             ))}
           </div>
         )}
       </section>
-      </div>
-        <AdBanner
-        title="Endless accessories. Epic prices."
-        subtitle="Browse millions of upgrades for your ride."
-        ctaText="Shop now"
-        ctaLink="/browse?category=electronics"
+
+      <AdBanner
+        title="That textbook isn't getting any newer"
+        subtitle="List what you no longer use and have it sold before the term ends."
+        ctaText="Sell an item"
+        ctaLink="/sell/new"
         image="/ad-banner-1.jpg"
-        imageAlt="Tech accessories"
-        textAlign="left"
-        
+        imageAlt="Second-hand books and study gear"
       />
-      <div className="container">
-      {/* Trending */}
-      <section className="container mx-auto px-4 pb-12">
-        <SectionHeader
-          title="Trending"
-          subtitle="What other students are buying"
-          link="/browse"
-          linkText="View all"
-        />
-        {!hasTrending ? (
-          <div className="text-center py-8 bg-muted/30 rounded-lg border border-dashed">
-            <p className="text-muted-foreground">No trending items yet.</p>
-            <p className="text-sm text-muted-foreground mt-1">Check back soon!</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {trending.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                pricePaisa={listing.pricePaisa}
-                condition={listing.condition}
-                image={listing.images?.[0]}
-                sellerName={listing.seller.name}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-      </div>
-    </main>
+
+      <HowItWorks />
+    </>
   );
 }

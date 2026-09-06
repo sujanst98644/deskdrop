@@ -13,7 +13,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
-import { ThemeToggle } from "./ThemeToggle";
 
 export function Header({
   categories,
@@ -38,11 +37,10 @@ export function Header({
       {/* Top utility row */}
       <div className="container flex h-14 items-center justify-between">
         <Link href="/" className="text-xl font-bold tracking-tight">
-          Desk<span className="text-orange-500">drop</span>
+          Desk<span className="text-primary">drop</span>
         </Link>
 
         <nav className="flex items-center gap-6 text-sm">
-          <ThemeToggle />
           <Link
             href="/dashboard/listings"
             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
@@ -88,11 +86,11 @@ export function Header({
             placeholder="What are you looking for?"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-11 flex-1 border border-r-0 border-input bg-background px-4 text-sm outline-none focus:ring-2 focus:ring-ring"
+            className="h-11 flex-1 border border-r-0 border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
           />
           <button
             type="submit"
-            className="flex h-11 items-center gap-2 bg-orange-500 px-6 text-sm font-medium text-white hover:bg-orange-600 transition-colors"
+            className="flex h-11 items-center gap-2 bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <Search className="h-4 w-4" /> Search
           </button>
@@ -100,7 +98,7 @@ export function Header({
 
         <Link
           href="/sell/new"
-          className="flex items-center gap-2 whitespace-nowrap border border-black bg-foreground px-5 py-2.5 text-sm font-medium text-background hover:opacity-90 transition-colors dark:bg-white dark:text-black"
+          className="flex items-center gap-2 whitespace-nowrap bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
         >
           <ShoppingBag className="h-4 w-4" /> Sell an item
         </Link>

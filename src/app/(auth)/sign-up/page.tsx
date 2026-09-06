@@ -6,6 +6,8 @@ import Link from "next/link";
 import { signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { signUpSchema } from "@/lib/validations";
+import { AuthField } from "@/components/auth/AuthField";
+import { PasswordField } from "@/components/auth/PasswordField";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -57,78 +59,63 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="container flex min-h-[70vh] items-center justify-center">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
+    <div className="container flex min-h-[70vh] items-center justify-center py-12">
+      <div className="w-full max-w-sm">
+        <div className="border border-border bg-card p-6 md:p-8">
           <h1 className="text-2xl font-bold">Create your account</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground">
             Join Deskdrop in seconds
           </p>
-        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label htmlFor="name" className="text-sm font-medium">
-              Name
-            </label>
-            <input
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <AuthField
               id="name"
               name="name"
               type="text"
+              label="Name"
+              autoComplete="name"
+              placeholder="Asha Sharma"
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
-          </div>
-          <div className="space-y-1">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email
-            </label>
-            <input
+            <AuthField
               id="email"
               name="email"
               type="email"
+              label="Email"
+              autoComplete="email"
+              placeholder="you@university.edu"
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
-          </div>
-          <div className="space-y-1">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <input
+            <PasswordField
               id="password"
               name="password"
-              type="password"
-              required
+              label="Password"
+              autoComplete="new-password"
+              hint="At least 8 characters."
               minLength={8}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+              required
             />
-          </div>
-          <div className="space-y-1">
-            <label htmlFor="confirm" className="text-sm font-medium">
-              Confirm password
-            </label>
-            <input
+            <PasswordField
               id="confirm"
               name="confirm"
-              type="password"
-              required
+              label="Confirm password"
+              autoComplete="new-password"
               minLength={8}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+              required
             />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            {loading ? "Creating account..." : "Sign up"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+            >
+              {loading ? "Creating account…" : "Sign up"}
+            </button>
+          </form>
+        </div>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/sign-in" className="font-medium text-foreground underline">
+          <Link href="/sign-in" className="font-medium text-primary hover:underline">
             Sign in
           </Link>
         </p>

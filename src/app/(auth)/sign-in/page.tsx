@@ -6,6 +6,8 @@ import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { signInSchema } from "@/lib/validations";
+import { AuthField } from "@/components/auth/AuthField";
+import { PasswordField } from "@/components/auth/PasswordField";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -44,59 +46,47 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="container flex min-h-[70vh] items-center justify-center">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
+    <div className="container flex min-h-[70vh] items-center justify-center py-12">
+      <div className="w-full max-w-sm">
+        <div className="border border-border bg-card p-6 md:p-8">
           <h1 className="text-2xl font-bold">Sign in to Deskdrop</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground">
             Buy and sell with fellow students
           </p>
-        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email
-            </label>
-            <input
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <AuthField
               id="email"
               name="email"
               type="email"
+              label="Email"
+              autoComplete="email"
+              placeholder="you@university.edu"
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
-          </div>
-          <div className="space-y-1">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <input
+            <PasswordField
               id="password"
               name="password"
-              type="password"
-              required
+              label="Password"
+              autoComplete="current-password"
               minLength={8}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+              required
             />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+            >
+              {loading ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
+        </div>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           No account?{" "}
-          <Link href="/sign-up" className="font-medium text-foreground underline">
+          <Link href="/sign-up" className="font-medium text-primary hover:underline">
             Sign up
           </Link>
-        </p>
-
-        <p className="text-center text-xs text-muted-foreground">
-          Demo login: asha@test.com / password123
         </p>
       </div>
     </div>

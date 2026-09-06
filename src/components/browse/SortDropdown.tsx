@@ -22,7 +22,7 @@ export function SortDropdown({ currentSort }: { currentSort: string }) {
     <select
       value={currentSort}
       onChange={(e) => handleChange(e.target.value)}
-      className="px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-background"
+      className="px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-background"
     >
       {sortOptions.map((opt) => (
         <option key={opt.value} value={opt.value}>

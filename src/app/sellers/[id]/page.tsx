@@ -27,7 +27,7 @@ export default async function SellerProfilePage({
   return (
     <div className="container max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-20 h-20 rounded-full bg-muted overflow-hidden">
+        <div className="w-20 h-20 bg-muted overflow-hidden">
           {user.image ? (
             <Image src={user.image} alt={user.name} width={80} height={80} className="object-cover" />
           ) : (

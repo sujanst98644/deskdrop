@@ -103,59 +103,59 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {successMessage && (
-        <div className="bg-green-100 dark:bg-green-900/30 border border-green-400 text-green-700 dark:text-green-300 px-4 py-3 rounded">
+        <div className="border border-success/40 bg-success/10 text-success px-4 py-3">
           {successMessage}
         </div>
       )}
 
       <div>
         <label htmlFor="title" className="block text-sm font-medium mb-1">
-          Title <span className="text-red-500">*</span>
+          Title <span className="text-destructive">*</span>
         </label>
         <input
           id="title"
           {...register("title")}
-          className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
         />
-        {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
+        {errors.title && <p className="text-sm text-destructive mt-1">{errors.title.message}</p>}
       </div>
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium mb-1">
-          Description <span className="text-red-500">*</span>
+          Description <span className="text-destructive">*</span>
         </label>
         <textarea
           id="description"
           rows={5}
           {...register("description")}
-          className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+          className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
         />
-        {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>}
+        {errors.description && <p className="text-sm text-destructive mt-1">{errors.description.message}</p>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="priceRs" className="block text-sm font-medium mb-1">
-            Price (Rs) <span className="text-red-500">*</span>
+            Price (Rs) <span className="text-destructive">*</span>
           </label>
           <input
             id="priceRs"
             type="number"
             step="0.01"
             {...register("priceRs", { valueAsNumber: true })}
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
           />
-          {errors.priceRs && <p className="text-sm text-red-500 mt-1">{errors.priceRs.message}</p>}
+          {errors.priceRs && <p className="text-sm text-destructive mt-1">{errors.priceRs.message}</p>}
         </div>
 
         <div>
           <label htmlFor="condition" className="block text-sm font-medium mb-1">
-            Condition <span className="text-red-500">*</span>
+            Condition <span className="text-destructive">*</span>
           </label>
           <select
             id="condition"
             {...register("condition")}
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
           >
             <option value="">Select condition</option>
             {conditions.map((c) => (
@@ -164,19 +164,19 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
               </option>
             ))}
           </select>
-          {errors.condition && <p className="text-sm text-red-500 mt-1">{errors.condition.message}</p>}
+          {errors.condition && <p className="text-sm text-destructive mt-1">{errors.condition.message}</p>}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="categoryId" className="block text-sm font-medium mb-1">
-            Category <span className="text-red-500">*</span>
+            Category <span className="text-destructive">*</span>
           </label>
           <select
             id="categoryId"
             {...register("categoryId")}
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
           >
             <option value="">Select category</option>
             {categories.map((cat) => (
@@ -185,7 +185,7 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
               </option>
             ))}
           </select>
-          {errors.categoryId && <p className="text-sm text-red-500 mt-1">{errors.categoryId.message}</p>}
+          {errors.categoryId && <p className="text-sm text-destructive mt-1">{errors.categoryId.message}</p>}
         </div>
 
         <div>
@@ -195,19 +195,19 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
           <input
             id="campusCity"
             {...register("campusCity")}
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
           />
-          {errors.campusCity && <p className="text-sm text-red-500 mt-1">{errors.campusCity.message}</p>}
+          {errors.campusCity && <p className="text-sm text-destructive mt-1">{errors.campusCity.message}</p>}
         </div>
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-1">
-          Images (1-3) <span className="text-red-500">*</span>
+          Images (1-3) <span className="text-destructive">*</span>
         </label>
         <ImageUploader images={images} onChange={handleImagesChange} max={3} />
-        {serverErrors.images && <p className="text-sm text-red-500 mt-1">{serverErrors.images[0]}</p>}
-        {errors.images && <p className="text-sm text-red-500 mt-1">{errors.images.message}</p>}
+        {serverErrors.images && <p className="text-sm text-destructive mt-1">{serverErrors.images[0]}</p>}
+        {errors.images && <p className="text-sm text-destructive mt-1">{errors.images.message}</p>}
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
@@ -215,7 +215,7 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
       </Button>
 
       {serverErrors._form && (
-        <p className="text-sm text-red-500 text-center">{serverErrors._form[0]}</p>
+        <p className="text-sm text-destructive text-center">{serverErrors._form[0]}</p>
       )}
     </form>
   );

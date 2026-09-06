@@ -29,7 +29,7 @@ export function CategoryPills() {
           key={cat.id}
           onClick={() => handleClick(cat.id)}
           className={cn(
-            "px-4 py-2 rounded-full border text-sm font-medium transition whitespace-nowrap",
+            "px-4 py-2 border text-sm font-medium transition whitespace-nowrap",
             current === cat.id
               ? "bg-primary text-primary-foreground border-primary"
               : "bg-background hover:bg-muted"
