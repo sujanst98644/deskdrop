@@ -104,11 +104,13 @@
   padding-inline: 1rem;
 
   @media (width >= 640px) {
-    padding-inline: 2rem;
+    padding-inline: 1.5rem;
   }
 
-  @media (width >= 1400px) {
-    max-width: 1400px;
+  /* Only start reserving a gutter once the line length would get unreadable —
+     capping at 1400 was leaving a wide empty margin on ordinary laptops. */
+  @media (width >= 1700px) {
+    max-width: 1700px;
   }
 }
 
