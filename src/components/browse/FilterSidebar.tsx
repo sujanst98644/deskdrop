@@ -5,6 +5,15 @@ import { useState } from "react";
 import { X, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { fieldClass } from "@/lib/form-styles";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Category = { id: string; name: string; slug: string };
 type Filters = {
@@ -55,11 +64,17 @@ export function FilterSidebar({ categories, currentFilters, mobile }: FilterSide
     if (mobile) setIsOpen(false);
   };
 
+  const categoryOptions = [
+    { value: "all", label: "All categories" },
+    ...categories.map((category) => ({ value: category.slug, label: category.name })),
+  ];
+
   const content = (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h3 className="font-semibold mb-2">Search</h3>
+        <label htmlFor="filter-q" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Search</label>
         <input
+          id="filter-q"
           type="text"
           placeholder="Search listings..."
           defaultValue={currentFilters.q}
@@ -69,64 +84,76 @@ export function FilterSidebar({ categories, currentFilters, mobile }: FilterSide
               updateFilters("q", value);
             }
           }}
-          className="w-full px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+          className={fieldClass}
         />
       </div>
 
       <div>
-        <h3 className="font-semibold mb-2">Category</h3>
-        <select
+        <label htmlFor="filter-category" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Category</label>
+        <Select
+          items={categoryOptions}
           value={currentFilters.category}
-          onChange={(e) => updateFilters("category", e.target.value)}
-          className="w-full px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+          onValueChange={(value) => updateFilters("category", String(value))}
         >
-          <option value="all">All categories</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.slug}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger id="filter-category">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {categoryOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
-        <h3 className="font-semibold mb-2">Condition</h3>
-        <select
+        <label htmlFor="filter-condition" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Condition</label>
+        <Select
+          items={conditions}
           value={currentFilters.condition}
-          onChange={(e) => updateFilters("condition", e.target.value)}
-          className="w-full px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+          onValueChange={(value) => updateFilters("condition", String(value))}
         >
-          {conditions.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger id="filter-condition">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {conditions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
-        <h3 className="font-semibold mb-2">Price range (Rs)</h3>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Price range (Rs)</p>
         <div className="flex gap-2">
           <input
             type="number"
+            aria-label="Minimum price"
             placeholder="Min"
             value={currentFilters.minPrice || ""}
             onChange={(e) => updateFilters("minPrice", e.target.value ? Number(e.target.value) : undefined)}
-            className="w-1/2 px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+            className={cn(fieldClass, "w-1/2")}
           />
           <input
             type="number"
+            aria-label="Maximum price"
             placeholder="Max"
             value={currentFilters.maxPrice || ""}
             onChange={(e) => updateFilters("maxPrice", e.target.value ? Number(e.target.value) : undefined)}
-            className="w-1/2 px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+            className={cn(fieldClass, "w-1/2")}
           />
         </div>
       </div>
 
       <div>
-        <h3 className="font-semibold mb-2">Campus / City</h3>
+        <label htmlFor="filter-campus" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Campus / City</label>
         <input
+          id="filter-campus"
           type="text"
           placeholder="e.g. Kathmandu"
           defaultValue={currentFilters.campusCity}
@@ -136,13 +163,15 @@ export function FilterSidebar({ categories, currentFilters, mobile }: FilterSide
               updateFilters("campusCity", value);
             }
           }}
-          className="w-full px-3 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+          className={fieldClass}
         />
       </div>
 
-      <Button variant="outline" className="w-full" onClick={clearFilters}>
-        Clear all filters
-      </Button>
+      <div className="border-t border-border pt-5">
+        <Button variant="outline" className="h-9 w-full" onClick={clearFilters}>
+          Clear all filters
+        </Button>
+      </div>
     </div>
   );
 

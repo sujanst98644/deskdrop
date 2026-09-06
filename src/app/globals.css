@@ -43,8 +43,10 @@
   --destructive-foreground: hsl(0 0% 100%);
   --success: hsl(152 58% 30%);
   --success-foreground: hsl(0 0% 100%);
-  --warning: hsl(38 92% 38%);
-  --warning-foreground: hsl(0 0% 100%);
+  /* Amber reads as amber at this lightness; darkening it for white text turned
+     the "Good" condition chip brown. Dark text on bright amber instead. */
+  --warning: hsl(38 95% 52%);
+  --warning-foreground: hsl(20 14% 10%);
   --info: hsl(217 85% 45%);
   --info-foreground: hsl(0 0% 100%);
 

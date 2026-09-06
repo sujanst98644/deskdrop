@@ -13,6 +13,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
+import { fieldClass } from "@/lib/form-styles";
 
 export function Header({
   categories,
@@ -80,13 +82,13 @@ export function Header({
       <div className="container flex h-16 items-center gap-4">
         <CategoryDropdown categories={categories} />
 
-        <form onSubmit={handleSearch} className="flex flex-1 items-center">
+        <form onSubmit={handleSearch} className="flex min-w-0 flex-1 items-center">
           <input
             type="search"
             placeholder="What are you looking for?"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-11 flex-1 border border-r-0 border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
+            className={cn(fieldClass, "h-11 flex-1 border-r-0 px-4 py-0")}
           />
           <button
             type="submit"
@@ -98,7 +100,7 @@ export function Header({
 
         <Link
           href="/sell/new"
-          className="flex items-center gap-2 whitespace-nowrap bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+          className="flex h-11 items-center gap-2 whitespace-nowrap bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-90"
         >
           <ShoppingBag className="h-4 w-4" /> Sell an item
         </Link>

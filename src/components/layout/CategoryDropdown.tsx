@@ -19,7 +19,7 @@ export function CategoryDropdown({ categories }: { categories: Category[] }) {
     >
       <button
         onClick={toggle}
-        className="flex items-center gap-2 border border-input px-4 py-2.5 text-sm font-medium bg-background text-foreground hover:bg-muted transition"
+        className="flex h-11 items-center gap-2 border border-input bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted"
       >
         Categories <ChevronDown className="h-4 w-4" />
       </button>

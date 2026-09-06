@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { authInputClass } from "./AuthField";
+import { fieldClass } from "@/lib/form-styles";
 
 export function PasswordField({
   id,
@@ -27,7 +27,7 @@ export function PasswordField({
         <input
           id={id}
           type={visible ? "text" : "password"}
-          className={cn(authInputClass, "pr-11", className)}
+          className={cn(fieldClass, "pr-11", className)}
           {...props}
         />
         <button

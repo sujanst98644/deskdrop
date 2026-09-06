@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   listingSchema,
@@ -11,6 +11,14 @@ import {
 import { updateListingAction } from "@/lib/actions/listing";
 import { ImageUploader } from "@/components/listings/ImageUploader";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { fieldClass, textareaClass } from "@/lib/form-styles";
 
 const conditions = [
   { value: "NEW", label: "New" },
@@ -39,6 +47,7 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
@@ -57,6 +66,11 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
       images: listing.images || [],
     },
   });
+
+  const categoryOptions = categories.map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
 
   const images = watch("images");
 
@@ -115,7 +129,7 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
         <input
           id="title"
           {...register("title")}
-          className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+          className={fieldClass}
         />
         {errors.title && <p className="text-sm text-destructive mt-1">{errors.title.message}</p>}
       </div>
@@ -128,7 +142,7 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
           id="description"
           rows={5}
           {...register("description")}
-          className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+          className={textareaClass}
         />
         {errors.description && <p className="text-sm text-destructive mt-1">{errors.description.message}</p>}
       </div>
@@ -143,7 +157,7 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
             type="number"
             step="0.01"
             {...register("priceRs", { valueAsNumber: true })}
-            className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+            className={fieldClass}
           />
           {errors.priceRs && <p className="text-sm text-destructive mt-1">{errors.priceRs.message}</p>}
         </div>
@@ -152,18 +166,28 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
           <label htmlFor="condition" className="block text-sm font-medium mb-1">
             Condition <span className="text-destructive">*</span>
           </label>
-          <select
-            id="condition"
-            {...register("condition")}
-            className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
-          >
-            <option value="">Select condition</option>
-            {conditions.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
+          <Controller
+            control={control}
+            name="condition"
+            render={({ field }) => (
+              <Select
+                items={conditions}
+                value={field.value || null}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger id="condition">
+                  <SelectValue placeholder="Select condition" />
+                </SelectTrigger>
+                <SelectContent>
+                  {conditions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
           {errors.condition && <p className="text-sm text-destructive mt-1">{errors.condition.message}</p>}
         </div>
       </div>
@@ -173,18 +197,28 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
           <label htmlFor="categoryId" className="block text-sm font-medium mb-1">
             Category <span className="text-destructive">*</span>
           </label>
-          <select
-            id="categoryId"
-            {...register("categoryId")}
-            className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
-          >
-            <option value="">Select category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <Controller
+            control={control}
+            name="categoryId"
+            render={({ field }) => (
+              <Select
+                items={categoryOptions}
+                value={field.value || null}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger id="categoryId">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
           {errors.categoryId && <p className="text-sm text-destructive mt-1">{errors.categoryId.message}</p>}
         </div>
 
@@ -195,7 +229,7 @@ export function EditListingForm({ listing, categories }: EditListingFormProps) {
           <input
             id="campusCity"
             {...register("campusCity")}
-            className="w-full px-4 py-2 border focus:ring-2 focus:ring-primary focus:outline-none"
+            className={fieldClass}
           />
           {errors.campusCity && <p className="text-sm text-destructive mt-1">{errors.campusCity.message}</p>}
         </div>

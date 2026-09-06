@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ImageOff } from "lucide-react";
 import { formatRs } from "@/lib/utils";
 
 const conditionColor: Record<string, string> = {
   NEW: "bg-success text-success-foreground",
   LIKE_NEW: "bg-info text-info-foreground",
   GOOD: "bg-warning text-warning-foreground",
-  FAIR: "bg-secondary text-secondary-foreground",
+  FAIR: "bg-foreground/85 text-background",
 };
 
 const conditionLabel: Record<string, string> = {
@@ -40,8 +41,9 @@ export function ListingCard({
         {image ? (
           <Image src={image} alt={title} fill className="object-cover" />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-            No image
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+            <ImageOff className="size-6" />
+            <span className="text-sm">No image</span>
           </div>
         )}
         <span

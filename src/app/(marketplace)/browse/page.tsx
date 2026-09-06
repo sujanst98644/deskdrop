@@ -16,12 +16,10 @@ export default async function BrowsePage({
   const params = await searchParams;
   const filters = getBrowseFilters(params);
 
-  // Build where clause
   const where: Prisma.ListingWhereInput = {
     status: "AVAILABLE",
   };
 
-  // Search (title or description)
   if (filters.q) {
     where.OR = [
       { title: { contains: filters.q, mode: "insensitive" } },
@@ -29,13 +27,11 @@ export default async function BrowsePage({
     ];
   }
 
-  // Category
+  
   if (filters.category && filters.category !== "all") {
     where.category = { slug: filters.category };
   }
 
-  // Condition — ignore anything that isn't one of the known values, so a
-  // hand-typed ?condition= can't reach Prisma as an invalid enum.
   const condition = conditionEnum.safeParse(filters.condition);
   if (condition.success) {
     where.condition = condition.data;
@@ -49,7 +45,6 @@ export default async function BrowsePage({
     };
   }
 
-  // Campus city
   if (filters.campusCity) {
     where.campusCity = { contains: filters.campusCity, mode: "insensitive" };
   }
@@ -92,19 +87,16 @@ export default async function BrowsePage({
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container py-8">
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Desktop sidebar */}
-        <aside className="hidden md:block w-64 flex-shrink-0">
-          <FilterSidebar categories={categories} currentFilters={filters} />
+        <aside className="hidden w-64 shrink-0 md:block">
+          <div className="sticky top-6">
+            <h2 className="mb-4 text-lg font-semibold">Filters</h2>
+            <FilterSidebar categories={categories} currentFilters={filters} />
+          </div>
         </aside>
-
-        {/* Main content */}
         <div className="flex-1">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <p className="text-sm text-muted-foreground">
-              {totalCount} {totalCount === 1 ? "listing" : "listings"} found
-            </p>
+          <div className="mb-6 flex flex-wrap items-center justify-end gap-4">
             <div className="flex items-center gap-3">
               <SortDropdown currentSort={filters.sort} />
               <FilterSidebar
@@ -116,14 +108,14 @@ export default async function BrowsePage({
           </div>
 
           {listings.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
               <h3 className="text-lg font-semibold">No listings found</h3>
-              <p className="text-muted-foreground">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Try adjusting your filters or search terms.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {listings.map((listing) => (
                 <ListingCard
                   key={listing.id}
