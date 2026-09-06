@@ -102,7 +102,10 @@ export default async function MyListingsPage() {
                 >
                   Edit
                 </Button>
-                <DeleteListingButton listingId={listing.id} />
+                <DeleteListingButton
+                  listingId={listing.id}
+                  listingTitle={listing.title}
+                />
               </div>
             </div>
           ))}

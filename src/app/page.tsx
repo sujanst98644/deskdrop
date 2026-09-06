@@ -28,7 +28,7 @@ export default async function HomePage() {
       <section className="container py-10 md:py-14">
         <SectionHeader
           title="New arrivals"
-          subtitle="Freshly listed items from your campus"
+          subtitle="The latest items students have put up for sale"
           link="/browse?sort=newest"
           linkText="View all"
         />
@@ -59,12 +59,12 @@ export default async function HomePage() {
       </section>
 
       <AdBanner
-        title="That textbook isn't getting any newer"
+        title="Last term's kit is still worth something"
         subtitle="List what you no longer use and have it sold before the term ends."
         ctaText="Sell an item"
         ctaLink="/sell/new"
-        image="/ad-banner-1.jpg"
-        imageAlt="Second-hand books and study gear"
+        image="/ad-banner-2.jpg"
+        imageAlt="A tablet, phone, watch, glasses and stationery laid out on an orange background"
       />
 
       <HowItWorks />

@@ -20,7 +20,7 @@ const slides: HeroSlideContent[] = [
     eyebrow: "Deskdrop",
     title: "Buy and sell with fellow students",
     subtitle:
-      "Textbooks, electronics, dorm essentials — find it on campus or list your own in minutes.",
+      "Textbooks, electronics, dorm essentials — find what you need or list your own in minutes.",
     primaryCta: { label: "Browse listings", href: "/browse" },
     secondaryCta: { label: "Sell an item", href: "/sell/new" },
   },
@@ -30,7 +30,7 @@ const slides: HeroSlideContent[] = [
     eyebrow: "Books",
     title: "Last term's textbooks, a fraction of the price",
     subtitle:
-      "The reading list you need is already on someone's shelf two blocks away.",
+      "The reading list you need is already sitting on another student's shelf.",
     primaryCta: { label: "Shop books", href: "/browse?category=books" },
     secondaryCta: { label: "Sell your books", href: "/sell/new" },
   },

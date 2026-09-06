@@ -28,6 +28,16 @@ export function AdBanner({
       <div className="relative overflow-hidden px-6 py-16 md:px-12 md:py-20">
         <Image src={image} alt={imageAlt} fill sizes="100vw" className="object-cover" />
         <div className="media-scrim" />
+        {/* The flat scrim alone can't guarantee contrast — a light patch in the
+            photo lands under the copy and white-on-white shows through. This
+            deepens the side the text actually sits on. */}
+        <div
+          className={`absolute inset-0 ${
+            isCentered
+              ? "bg-black/25"
+              : "bg-gradient-to-r from-black/60 via-black/25 to-transparent"
+          }`}
+        />
 
         <div
           className={`relative max-w-2xl ${isCentered ? "mx-auto text-center" : "text-left"}`}

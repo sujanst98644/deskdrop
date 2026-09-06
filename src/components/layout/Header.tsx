@@ -11,12 +11,13 @@ import {
   Package,
   ShoppingBag,
   User,
-  ChevronDown,
+  LogOut,
 } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { fieldClass } from "@/lib/form-styles";
 import { useInboxUpdates } from "@/lib/pusher/use-inbox-updates";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export function Header({
   categories,
@@ -28,6 +29,7 @@ export function Header({
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [signOutOpen, setSignOutOpen] = useState(false);
 
   // The badge starts from the server count, then the socket keeps it live
   // without re-rendering whatever page it is sitting on. Whichever arrived last
@@ -83,17 +85,20 @@ export function Header({
             )}
           </Link>
           {isPending ? null : session ? (
-            <button
-              onClick={async () => {
-                await signOut();
-                router.push("/");
-                router.refresh();
-              }}
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <User className="h-4 w-4" /> {session.user?.name}{" "}
-              <ChevronDown className="h-3 w-3" />
-            </button>
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <User className="h-4 w-4" /> {session.user?.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSignOutOpen(true)}
+                aria-label="Sign out"
+                title="Sign out"
+                className="text-muted-foreground transition-colors hover:text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           ) : (
             <Link
               href="/sign-in"
@@ -132,6 +137,20 @@ export function Header({
           <ShoppingBag className="h-4 w-4" /> Sell an item
         </Link>
       </div>
+
+      <ConfirmDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        title="Sign out?"
+        description="You'll need to sign in again to message sellers or manage your listings."
+        confirmLabel="Sign out"
+        variant="destructive"
+        onConfirm={async () => {
+          await signOut();
+          router.push("/");
+          router.refresh();
+        }}
+      />
     </header>
   );
 }
