@@ -33,7 +33,13 @@ export function ListingCard({
     >
       <div className="relative aspect-square bg-muted">
         {image ? (
-          <Image src={image} alt={title} fill className="object-cover" />
+          <Image
+            src={image}
+            alt={title}
+            fill
+            sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, 50vw"
+            className="object-cover"
+          />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
             <ImageOff className="size-6" />

@@ -22,7 +22,16 @@ export const listingSchema = z.object({
   condition: conditionEnum,
   categoryId: z.string().min(1, "Pick a category"),
   campusCity: z.string().optional(),
-  images: z.array(z.url()).min(1, "Add at least 1 image").max(4, "Max 4 images"),
+  // `z.url()` alone accepts `data:` URIs, which is how base64 blobs ended up
+  // in the images column. Hosted images only.
+  images: z
+    .array(
+      z
+        .url()
+        .refine((u) => u.startsWith("https://"), "Images must be hosted, not inline")
+    )
+    .min(1, "Add at least 1 image")
+    .max(4, "Max 4 images"),
 });
 // `priceRs` is coerced, so the schema's input and output shapes differ:
 // ListingFormValues is what the form holds, ListingInput what it parses to.

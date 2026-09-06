@@ -4,12 +4,51 @@ import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { X, Upload, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { uploadImageAction } from "@/lib/actions/upload";
 
 interface ImageUploaderProps {
   images: string[];
   onChange: (urls: string[]) => void;
   max?: number;
+}
+
+const MAX_BYTES = 5 * 1024 * 1024;
+
+// Declared here rather than imported from `@/lib/imagekit`: that module pulls
+// in the Node SDK, which has no business in the browser bundle.
+const IMAGEKIT_UPLOAD_URL = "https://upload.imagekit.io/api/v1/files/upload";
+
+/**
+ * Uploads one file straight to ImageKit and returns its CDN URL.
+ *
+ * The bytes never touch this app's server — we only fetch a short-lived
+ * signature from `/api/upload-auth` and POST the file to ImageKit directly.
+ * Each signature is single-use, so this runs per file rather than per batch.
+ */
+async function uploadToImageKit(file: File): Promise<string> {
+  const authRes = await fetch("/api/upload-auth");
+  if (!authRes.ok) {
+    const body = await authRes.json().catch(() => null);
+    throw new Error(body?.error ?? "Could not authorise the upload.");
+  }
+  const { token, expire, signature, publicKey, folder } = await authRes.json();
+
+  const body = new FormData();
+  body.append("file", file);
+  body.append("fileName", file.name);
+  body.append("publicKey", publicKey);
+  body.append("signature", signature);
+  body.append("expire", String(expire));
+  body.append("token", token);
+  body.append("folder", folder);
+  // Two students uploading `IMG_1234.jpg` must not overwrite each other.
+  body.append("useUniqueFileName", "true");
+
+  const res = await fetch(IMAGEKIT_UPLOAD_URL, { method: "POST", body });
+  const result = await res.json().catch(() => null);
+  if (!res.ok || !result?.url) {
+    throw new Error(result?.message ?? "Upload failed.");
+  }
+  return result.url as string;
 }
 
 export function ImageUploader({ images, onChange, max = 4 }: ImageUploaderProps) {
@@ -39,14 +78,16 @@ export function ImageUploader({ images, onChange, max = 4 }: ImageUploaderProps)
 
       const results = await Promise.all(
         selected.map(async (file) => {
-          const formData = new FormData();
-          formData.append("file", file);
+          // Checked here as well as by ImageKit so an oversized file fails
+          // instantly instead of after uploading megabytes.
+          if (!file.type.startsWith("image/")) {
+            return { error: `${file.name} is not an image.` };
+          }
+          if (file.size > MAX_BYTES) {
+            return { error: `${file.name} is larger than 5MB.` };
+          }
           try {
-            const result = await uploadImageAction(formData);
-            if (result.error || !result.url) {
-              return { error: result.error ?? "Upload failed" };
-            }
-            return { url: result.url };
+            return { url: await uploadToImageKit(file) };
           } catch (err) {
             return {
               error: err instanceof Error ? err.message : "Upload failed",
@@ -112,7 +153,6 @@ export function ImageUploader({ images, onChange, max = 4 }: ImageUploaderProps)
                 fill
                 sizes="25vw"
                 className="object-cover"
-                unoptimized
               />
               <button
                 type="button"

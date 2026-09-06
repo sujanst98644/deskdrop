@@ -1,22 +1,24 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-guard";
-import ImageKit from "imagekit";
+import { createImageKit, getImageKitConfig, LISTINGS_FOLDER } from "@/lib/imagekit";
 
+/**
+ * Hands the browser a short-lived signature so it can upload straight to
+ * ImageKit. Each signature is single-use, so the uploader calls this once per
+ * file rather than once per batch.
+ */
 export async function GET() {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const publicKey = process.env.IMAGEKIT_PUBLIC_KEY;
-  const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
-  const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT;
-
-  if (!publicKey || !privateKey || !urlEndpoint) {
+  const config = getImageKitConfig();
+  if (!config) {
     return NextResponse.json({ error: "ImageKit is not configured" }, { status: 500 });
   }
 
-  const imagekit = new ImageKit({ publicKey, privateKey, urlEndpoint });
+  const imagekit = createImageKit(config);
 
   const params = imagekit.getAuthenticationParameters(
     undefined,
@@ -27,7 +29,7 @@ export async function GET() {
     token: params.token,
     expire: params.expire,
     signature: params.signature,
-    publicKey,
-    urlEndpoint,
+    publicKey: config.publicKey,
+    folder: LISTINGS_FOLDER,
   });
 }

@@ -6,10 +6,5 @@ const nextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "ik.imagekit.io" }],
   },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: "6mb",
-    },
-  },
 };
 module.exports = nextConfig;
